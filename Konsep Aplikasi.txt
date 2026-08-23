@@ -1,0 +1,3 @@
+aplikasi ini dibuat untuk laporan keuangan jeje
+jeje perlu laporan untuk pengeluaran dan pemasukan uang gajinya
+tolong dibuatkan semacam menu simple kas masuk dan kas keluar
