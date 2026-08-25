@@ -22,7 +22,7 @@
     <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col min-h-screen border-r border-slate-800 flex-shrink-0">
         <!-- Logo / Brand Header -->
         <div class="h-16 flex items-center px-6 border-b border-slate-800">
-            <a href="{{ route('cash.index') }}" class="flex items-center gap-3">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
                 <div
                     class="w-8 h-8 bg-indigo-700 rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-sm">
                     JH

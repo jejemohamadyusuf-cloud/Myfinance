@@ -4,15 +4,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\TransactionController;
 use App\Http\Controllers\Web\ReportController;
 use App\Http\Controllers\Web\CoaController;
+use App\Http\Controllers\Web\DashboardController;
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware(['auth'])->group(function () {

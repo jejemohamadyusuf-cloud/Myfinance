@@ -6,6 +6,7 @@ use App\Models\Coa;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Traits\HasTransactionNumber;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -209,5 +210,43 @@ class TransactionService
             $transaction->update(['status' => Transaction::STATUS_VOID]);
             return $transaction;
         });
+    }
+
+    public function getDailyTransactionTrends(int $days = 7): array
+    {
+        $startDate = Carbon::now()->subDays($days - 1)->startOfDay();
+        $endDate = Carbon::now()->endOfDay();
+
+        $rawTrends = DB::table('transaction_details')
+                ->join('transactions', 'transaction_details.transaction_id', '=', 'transaction_id')
+                ->join('coas', 'transaction_details.coa_id', '=', 'coa_id')
+                ->whereNull('transactions.deleted_at')
+                ->where('transactions.status', 'posted')
+                ->where('coas.is_cash_bank', 1)
+                ->whereBetween('transactions.date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                ->selectRaw('DATE(transactions.date) as date_group, SUM(debit) as total_in, SUM(credit) as total_out')
+                ->groupBy('date_group')
+                ->orderBy('date_group', 'asc')
+                ->get()
+                ->keyBy('date_group');
+        
+        $labels = [];
+        $incomeData = [];
+        $expenseData = [];
+
+        for ($i=0; $i < $days; $i++) { 
+            $date = Carbon::now()->subDays($days - 1 - $i)->format('Y-m-d');
+            $formattedLabel = Carbon::parse($date)->format('d M');
+
+            $labels[] = $formattedLabel;
+            $incomeData[] = (float) ($rawTrends[$date]->total_in ?? 0);
+            $expenseData[] = (float) ($rawTrends[$date]->total_out ?? 0);
+        }
+
+        return [
+            'labels' => $labels,
+            'incomeData' => $incomeData,
+            'expenseData' => $expenseData
+        ];
     }
 }

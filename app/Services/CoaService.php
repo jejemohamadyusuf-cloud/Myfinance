@@ -6,6 +6,7 @@ use App\Models\Coa;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class CoaService
 {
@@ -48,5 +49,67 @@ class CoaService
         }
 
         return $coa->delete();
+    }
+
+    public function getCashBalance(): float
+    {
+        $cashCoaIds = Coa::where('is_cash_bank', 1)->whereRaw('name NOT LIKE?' , '%bank%')->pluck('id');
+        if ($cashCoaIds->isEmpty()) {
+            return 0.0;
+        }
+
+        $totals = DB::table('transaction_details')
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+            ->whereIn('transaction_details.coa_id', $cashCoaIds)
+            ->whereNull('transactions.deleted_at')
+            ->where('transactions.status', 'posted')
+            ->selectRaw('SUM(debit) as total_debit, SUM(credit) as total_credit')
+            ->first();
+
+        $debit = $totals->total_debit ?? 0;
+        $credit = $totals->total_credit ?? 0;
+
+        return (float) ($debit-$credit);
+    }
+
+    public function getBankBalance(): float
+    {
+        $bankCoaIds = Coa::where('is_cash_bank', 1)->whereRaw('name LIKE?' , '%bank%')->pluck('id');
+        if ($bankCoaIds->isEmpty()) {
+            return 0.0;
+        }
+
+        $totals = DB::table('transaction_details')
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+            ->whereIn('transaction_details.coa_id', $bankCoaIds)
+            ->whereNull('transactions.deleted_at')
+            ->where('transactions.status', 'posted')
+            ->selectRaw('SUM(debit) as total_debit, SUM(credit) as total_credit')
+            ->first();
+        
+        $debit = $totals->total_debit ?? 0;
+        $credit = $totals->total_credit ?? 0;
+
+        return (float) ($debit-$credit);
+    }
+
+    private function calculateBalanceByCoaIds($coaIds): float
+    {
+        if ($coaIds->isEmpty()) {
+            return 0.0;
+        }
+
+        $totals = DB::table('transaction_details')
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transaction_id')
+            ->whereIn('transaction_details.coa_id', $coaIds)
+            ->whereNull('transactions.deleted_at')
+            ->where('transactions.status', 'posted')
+            ->selectRaw('SUM(debit) as total_debit, SUM(credit) as total_credit')
+            ->first();
+        
+        $debit = $totals->total_debit ?? 0;
+        $credit = $totals->total_credit ?? 0;
+
+        return (float) ($debit - $credit);
     }
 }
