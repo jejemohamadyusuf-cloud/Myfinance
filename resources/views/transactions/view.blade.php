@@ -70,7 +70,7 @@
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Description / Memo</label>
                     <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700">
-                        {{ $transaction->description ?? '-' }}
+                        {{ $transactions->description }}
                     </div>
                 </div>
             </div>
