@@ -2,15 +2,91 @@
 
 namespace App\Services;
 
+use App\Models\Coa;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Traits\HasTransactionNumber;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class TransactionService
 {
     use HasTransactionNumber;
+
+    public function getCashTransaction(int $perPage = 10): LengthAwarePaginator
+    {
+        return Transaction::whereIn('type', ['cash_in', 'cash_out', 'CASH_IN', 'CASH_OUT'])
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
+    }
+
+    public function getBankTransactions(int $perpage = 10): LengthAwarePaginator
+    {
+        return Transaction::whereIn('type', ['bank_in', 'bank_out', 'BANK_IN', 'BANK_OUT'])
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
+    }
+
+    public function getTransactionById(int $id): Transaction
+    {
+        return Transaction::with('details.coa')->findOrFail($id);
+    }
+
+    public function getCoaOptionsForTransaction(string $category): array
+    {
+        if ($category === 'bank') {
+            $cashBankCoas = Coa::where('is_cash_bank', 1)->where('name', 'LIKE', '%bank%')->orderBy('code')->get();
+        } else {
+            $cashBankCoas = Coa::where('is_cash_bank', 1)->where('name', 'NOT LIKE', '%bank%')->orderBy('code')->get();
+        }
+
+        $opponentCoas = Coa::orderBy('code')->get();
+
+        return compact('cashBankCoas', 'opponentCoas');
+    }
+
+    public function getTransactionFormData(int $id): array
+    {
+        $transaction = $this->getTransactionById($id);
+        $type = strtolower($transaction->type);
+        $isBank = in_array($type, ['bank_in', 'bank_out']);
+        $category = $isBank ? 'bank' : 'cash';
+
+        $coas = $this->getCoaOptionsForTransaction($category);
+        $cashBankCoas = $coas['cashBankCoas'];
+        $opponentCoas = $coas['opponentCoas'];
+
+        $cashBankCoaId = null;
+        $opponentCoaId = null;
+
+        foreach ($transaction->details as $detail) {
+            if ($detail->coa && (int) $detail->coa->is_cash_bank === 1) {
+                $cashBankCoaId = $detail->coa_id;
+            } else {
+                $opponentCoaId =$detail->coa_id;
+            }
+        }
+
+        if (!$cashBankCoaId || !$opponentCoaId) {
+            $details = $transaction->details->values();
+            if ($details->count() >= 2) {
+                if (in_array($type, ['cash_in', 'bank_in'])) {
+                    $cashBankCoaId = optional($details->firstWhere('debit', '>', 0));
+                    $opponentCoaId = optional($details->firstWhere('credit', '>', 0));
+                } else {
+                    $cashBankCoaId = optional($details->firstWhere('credit', '>', 0));
+                    $opponentCoaId = optional($details->firstWhere('debit', '>', 0));
+                }
+            }
+        }
+        
+        $amount = $transaction->total_amount;
+
+        return compact('transaction', 'cashBankCoas', 'opponentCoas', 'cashBankCoaId', 'opponentCoaId', 'amount', 'category');
+    }
 
     public function createTransaction(array $data): Transaction
     {
@@ -23,7 +99,7 @@ class TransactionService
                 'transaction_number' => $transactionNumber,
                 'status' => Transaction::STATUS_POSTED,
                 'type' => strtolower($data['type']),
-                'date' => $data['date'],
+                'date' => $data['date'],    
                 'description' => $data['description'] ?? null,
                 'total_amount' => (float) $data['total_amount'],
             ]);
@@ -127,7 +203,6 @@ class TransactionService
     {
         return DB::transaction(function () use ($id) {
             $transaction = Transaction::findOrFail($id);
-
             $transaction->update(['status' => Transaction::STATUS_VOID]);
             return $transaction;
         });

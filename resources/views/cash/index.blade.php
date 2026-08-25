@@ -35,7 +35,7 @@
                                         class="px-2 py-1 bg-rose-100 text-rose-700 text-[10px] font-bold uppercase rounded-full border border-rose-200">Void</span>
                                 @else
                                     <span
-                                        class="px-2 py-1 bg-emerald-100 text-emeral-700 text-[10px] font-bold uppercase rounded-full border border-emerald-200">Posted</span>
+                                        class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase rounded-full border border-emerald-200">Posted</span>
                                 @endif
                             </td>
                             <td class="py-3 px-4">{{ \Carbon\Carbon::parse($trx->date)->format('d/m/Y') }}</td>
@@ -73,11 +73,16 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-8 text-center text-slate-400">No Cash transactions found.</td>
+                            <td colspan="7" class="py-8 text-center text-slate-400">No Cash transactions found.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <!-- Paginasi -->
+        <div class="mt-4">
+            {{ $transactions->links() }}
         </div>
     </div>
 @endsection

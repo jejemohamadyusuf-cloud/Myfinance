@@ -30,12 +30,12 @@
                     @forelse($transactions as $trx)
                         <tr class="hover:bg-slate-50/80 transition">
                             <td class="py-3 px-4 text-center">
-                                @if ($trx->status === 'void')
+                                @if (strtolower($trx->status) === 'void')
                                     <span
                                         class="px-2 py-1 bg-rose-100 text-rose-700 text-[10px] font-bold uppercase rounded-full border border-rose-200">Void</span>
                                 @else
                                     <span
-                                        class="px-2 py-1 bg-emerald-100 text-emeral-700 text-[10px] font-bold uppercase rounded-full border border-emerald-200">Posted</span>
+                                        class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase rounded-full border border-emerald-200">Posted</span>
                                 @endif
                             </td>
                             <td class="py-3 px-4">{{ \Carbon\Carbon::parse($trx->date)->format('d/m/Y') }}</td>
@@ -50,7 +50,7 @@
                             <td class="py-3 px-4">{{ $trx->description ?? '-' }}</td>
                             <td class="py-3 px-4 text-right font-mono font-bold">
                                 {{ number_format($trx->total_amount, 2, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="px-4 py-3 text-right whitespace-nowrap">
                                 @if (strtolower($trx->status) !== 'void')
                                     <a href="{{ route('transactions.edit', $trx->id) }}"
                                         class="text-indigo-600 hover:text-indigo-900 text-xs font-semibold mr-2">Edit</a>
@@ -64,17 +64,25 @@
                                         </button>
                                     </form>
                                 @else
-                                    <span class="text-slate-400 text-xs italic">Canceled</span>
+                                    <a href="{{ route('transactions.show', $trx->id) }}"
+                                        class="text-slate-500 hover:text-slate-800 text-xs font-semibold underline">
+                                        View
+                                    </a>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-8 text-center text-slate-400">No Bank transactions found.</td>
+                            <td colspan="7" class="py-8 text-center text-slate-400">No Bank transactions found.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <!-- Paginasi -->
+        <div class="mt-4">
+            {{ $transactions->links() }}
         </div>
     </div>
 @endsection

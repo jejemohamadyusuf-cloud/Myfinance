@@ -42,12 +42,14 @@
                         @enderror
                     </div>
 
-                    <!-- Transaction Type -->
+                    <!-- Transaction Type (Disertai Hidden Input agar tetap terkirim saat Disabled) -->
                     <div>
-                        <label for="type" class="block text-xs font-bold text-slate-500 uppercase mb-2">Transaction Type
+                        <label for="type_select" class="block text-xs font-bold text-slate-500 uppercase mb-2">Transaction
+                            Type
                             <span class="text-rose-500">*</span></label>
-                        <select id="type" name="type" required disabled
-                            class="w-full px-4 py-2.5 bg-slate-50 border @error('type') border-rose-500 @else border-slate-300 @enderror rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="hidden" name="type" value="{{ strtolower($transaction->type) }}">
+                        <select id="type_select" disabled
+                            class="w-full px-4 py-2.5 bg-slate-100 border border-slate-300 rounded-lg text-sm text-slate-500 cursor-not-allowed focus:outline-none">
                             @if ($category === 'bank')
                                 <option value="bank_in"
                                     {{ in_array(strtolower(old('type', $transaction->type)), ['bank_in', 'cash_in']) ? 'selected' : '' }}>
@@ -80,7 +82,7 @@
                         <div class="relative">
                             <span
                                 class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm font-semibold">Rp</span>
-                            <input type="number" step="0.01" min="1" id="amount" name="total_amount"
+                            <input type="number" step="0.01" min="1" id="total_amount" name="total_amount"
                                 value="{{ old('total_amount', $amount) }}" placeholder="0.00" required
                                 class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border @error('total_amount') border-rose-500 @else border-slate-300 @enderror rounded-lg text-sm text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
@@ -141,7 +143,7 @@
 
                 <!-- Submit & Cancel Buttons -->
                 <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
-                    <a href="{{ $category === 'bank' ? route('bank.index') : route('cash.index') }} "
+                    <a href="{{ $category === 'bank' ? route('bank.index') : route('cash.index') }}"
                         class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs rounded-lg transition">
                         Cancel
                     </a>

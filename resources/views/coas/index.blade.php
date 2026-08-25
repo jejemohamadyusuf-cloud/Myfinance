@@ -68,5 +68,10 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Links Paginasi -->
+        <div class="mt-4">
+            {{ $coas->links() }}
+        </div>
     </div>
 @endsection

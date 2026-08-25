@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTransactionRequest extends FormRequest
@@ -36,7 +35,8 @@ class UpdateTransactionRequest extends FormRequest
     {
         return [
             'opponent_coa_id.different' => 'Opponent Coa can`t be the same',
-            'total_amount.gt' => 'value amount must be greater than 0'
+            'total_amount.gt' => 'value amount must be greater than 0',
+            'total_amount.required' => 'value amount must filled in'
         ];
     }
 }

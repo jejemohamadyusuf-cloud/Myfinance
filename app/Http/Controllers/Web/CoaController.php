@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Web;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCoaRequest;
 use App\Http\Requests\UpdateCoaRequest;
 use App\Services\CoaService;
-use App\Models\Coa;
+use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use Illuminate\Database\QueryExeption;
-use Exception;
 
 class CoaController extends Controller
 {
@@ -31,7 +29,7 @@ class CoaController extends Controller
 
     public function create(): View
     {
-        $coas = Coa::select('code', 'type')->get();
+        $coas = $this->coaService->getCoaOptions();
         return view('coas.create', compact('coas'));
     }
 
@@ -45,14 +43,14 @@ class CoaController extends Controller
 
     public function edit(int $id): View
     {
-        $coa = Coa::firstOrFail($id);
+        $coa = $this->coaService->getCoaById($id);
 
         return view('coas.edit', compact('coa'));
     }
 
     public function update(UpdateCoaRequest $request, int $id): RedirectResponse
     {
-        $this->CoaService->updateCoa($id, $request->validated());
+        $this->coaService->updateCoa($id, $request->validated());
         
         return redirect()->route('coas.index')->with('success', 'COA Account updated successfully');
     }

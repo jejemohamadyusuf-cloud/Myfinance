@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +10,25 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Coa extends Model
 {
     protected $guarded = ['id'];
-    protected $fillable = ['code', 'name', 'type', 'is_cash_bank', 'parent_id'];
+    protected $fillable = ['tenant_id', 'code', 'name', 'type', 'is_cash_bank', 'parent_id'];
+
+    public static function booted(): void
+    {
+        static::addGlobalScope('tenant', function (Builder $builder) {
+            if (auth()->check()) {
+                $user = auth()->user();
+                if (!$user->isSuperAdmin()) {
+                    $builder->where('tenant_id', $user->getTenantId());
+                }
+            }
+        });
+
+        static::creating(function (Coa $coa) {
+            if (auth()->check()) {
+                $coa->tenant_id = $coa->tenant_id ?? auth()->user()->getTenantId();
+            }
+        });
+    }
 
     public function parent(): BelongsTo
     {
@@ -19,6 +38,11 @@ class Coa extends Model
     public function children(): HasMany
     {
         return $this->hasMany(Coa::class, 'parent_id');
+    }
+
+    public function transactionDetails(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'coa_id');
     }
 
     public function scopeCashOnly(Builder $query): Builder

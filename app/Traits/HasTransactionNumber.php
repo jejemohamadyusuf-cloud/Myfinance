@@ -18,10 +18,11 @@ trait HasTransactionNumber
         $prefix = $prefixes[$type] ?? 'TR0';
         $carbonDate = Carbon::parse($date);
         $yearMonth = $carbonDate->format('ym');
-
         $searchPrefix = $prefix . $yearMonth;
 
-        $lastTransaction = Transaction::where('transaction_number', 'LIKE', $searchPrefix .'%')
+        $tenantId = auth()->check() ? auth()->user()->getTenantId() : null;
+
+        $lastTransaction = Transaction::where('tenant_id', $tenantId)->where('transaction_number', 'LIKE', $searchPrefix .'%')
         ->withTrashed()
         ->orderBy('transaction_number', 'desc')
         ->first();

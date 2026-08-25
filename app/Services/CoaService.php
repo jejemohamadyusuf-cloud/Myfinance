@@ -1,14 +1,27 @@
 <?php
 
 namespace App\Services;
+
 use App\Models\Coa;
+use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 class CoaService
 {
-    public function getAllCoas(): Collection
+    public function getAllCoas(int $perPage = 10): LengthAwarePaginator
     {
-        return Coa::orderBy('code', 'asc')->get();
+        return Coa::orderBy('code', 'asc')->paginate($perPage);
+    }
+
+    public function getCoaOptions(): Collection
+    {
+        return Coa::select('id', 'code', 'name', 'type')->orderBy('code', 'asc')->get();
+    }
+
+    public function getCoaById(int $id): Coa
+    {
+        return Coa::findOrFail($id);
     }
 
     public function createCoa(array $data): Coa
