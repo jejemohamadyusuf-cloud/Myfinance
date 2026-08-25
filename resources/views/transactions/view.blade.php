@@ -18,7 +18,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
 
             <!-- Banner Status Void -->
-            @if ($transaction->status === 'void')
+            @if ($transactions->status === 'void')
                 <div
                     class="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between text-rose-800">
                     <div class="flex items-center gap-3">
@@ -36,7 +36,7 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Voucher No.</label>
                     <div
                         class="p-3 bg-slate-100 border border-slate-200 rounded-lg text-sm font-mono font-bold text-slate-700">
-                        {{ $transaction->transaction_number }}
+                        {{ $transactions->transaction_number }}
                     </div>
                 </div>
 
@@ -44,7 +44,7 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Transaction Date</label>
                     <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800">
-                        {{ \Carbon\Carbon::parse($transaction->date)->format('d F Y') }}
+                        {{ \Carbon\Carbon::parse($transactions->date)->format('d F Y') }}
                     </div>
                 </div>
 
@@ -53,7 +53,7 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Transaction Type</label>
                     <div
                         class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold uppercase text-slate-800">
-                        {{ $transaction->type }}
+                        {{ $transactions->type }}
                     </div>
                 </div>
 
@@ -62,7 +62,7 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Total Amount</label>
                     <div
                         class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono font-bold text-slate-800">
-                        Rp {{ number_format($transaction->total_amount, 2, ',', '.') }}
+                        Rp {{ number_format($transactions->total_amount, 2, ',', '.') }}
                     </div>
                 </div>
 
@@ -89,7 +89,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 font-mono">
-                            @foreach ($transaction->details as $detail)
+                            @foreach ($transactions->details as $detail)
                                 <tr>
                                     <td class="py-2.5 px-4 font-bold text-indigo-600">{{ $detail->coa->code ?? '-' }}</td>
                                     <td class="py-2.5 px-4 font-sans text-slate-700">{{ $detail->coa->name ?? '-' }}</td>

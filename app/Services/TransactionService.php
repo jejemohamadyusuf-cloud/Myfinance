@@ -14,7 +14,7 @@ class TransactionService
 {
     use HasTransactionNumber;
 
-    public function getCashTransaction(int $perPage = 10): LengthAwarePaginator
+    public function getCashTransactions(int $perPage = 10): LengthAwarePaginator
     {
         return Transaction::whereIn('type', ['cash_in', 'cash_out', 'CASH_IN', 'CASH_OUT'])
             ->orderBy('date', 'desc')
@@ -22,7 +22,7 @@ class TransactionService
             ->paginate($perPage);
     }
 
-    public function getBankTransactions(int $perpage = 10): LengthAwarePaginator
+    public function getBankTransactions(int $perPage = 10): LengthAwarePaginator
     {
         return Transaction::whereIn('type', ['bank_in', 'bank_out', 'BANK_IN', 'BANK_OUT'])
             ->orderBy('date', 'desc')
@@ -74,13 +74,16 @@ class TransactionService
             $details = $transaction->details->values();
             if ($details->count() >= 2) {
                 if (in_array($type, ['cash_in', 'bank_in'])) {
-                    $cashBankCoaId = optional($details->firstWhere('debit', '>', 0));
-                    $opponentCoaId = optional($details->firstWhere('credit', '>', 0));
+                    $cashBankDetail = $details->firstWhere('debit', '>', 0);
+                    $opponentDetail = $details->firstWhere('credit', '>', 0);
                 } else {
-                    $cashBankCoaId = optional($details->firstWhere('credit', '>', 0));
-                    $opponentCoaId = optional($details->firstWhere('debit', '>', 0));
+                    $cashBankDetail = $details->firstWhere('credit', '>', 0);
+                    $opponentDetail = $details->firstWhere('debit', '>', 0);
                 }
             }
+
+            $cashBankCoaId = $cashBankDetail ? $cashBankDetail->coa_id : null;
+            $opponentCoaId = $opponentDetail ? $opponentDetail->coa_id : null;
         }
         
         $amount = $transaction->total_amount;

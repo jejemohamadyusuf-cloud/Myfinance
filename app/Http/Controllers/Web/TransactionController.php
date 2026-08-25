@@ -20,7 +20,7 @@ class TransactionController extends Controller
 
     public function cashIndex(): View
     {
-        $transactions = $this->transactionService->getCashTransaction(10);
+        $transactions = $this->transactionService->getCashTransactions(10);
         $category = 'cash';
 
         return view('cash.index', compact('transactions', 'category'));
@@ -38,7 +38,7 @@ class TransactionController extends Controller
 
     public function bankIndex(): View
     {
-        $transactions = $this->transactionService->getCashTransaction(10);
+        $transactions = $this->transactionService->getBankTransactions(10);
         $category = 'bank';
         
         return view('bank.index', compact('transactions', 'category'));
