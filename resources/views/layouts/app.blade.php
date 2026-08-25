@@ -75,6 +75,13 @@
                 {{ request()->routeIs('reports.ledger') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                 <span>General Ledger</span>
             </a>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="text-sm text-rose-600 hover:text-rose-800 font-medium">
+                    Logout ({{ auth()->user()->name }})
+                </button>
+            </form>
         </nav>
 
         <!-- API Endpoint Badge Shortcut -->
