@@ -115,7 +115,7 @@
                         class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs rounded-lg transition">Cancel</a>
                     <button type="submit"
                         class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition">
-                        Save Cash Transaction
+                        Save
                     </button>
                 </div>
             </form>
