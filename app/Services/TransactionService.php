@@ -212,41 +212,65 @@ class TransactionService
         });
     }
 
-    public function getDailyTransactionTrends(int $days = 7): array
+    public function getDailyTransactionTrends(?string $startDate = null, ?string $endDate = null): array
     {
-        $startDate = Carbon::now()->subDays($days - 1)->startOfDay();
-        $endDate = Carbon::now()->endOfDay();
+        $start = $startDate ? Carbon::parse($startDate)->startOfDay() : Carbon::now()->subDays(6)->startOfDay();
+        $end = $endDate ? Carbon::parse($endDate)->endOfDay() : Carbon::now()->endOfDay();
 
-        $rawTrends = DB::table('transaction_details')
-                ->join('transactions', 'transaction_details.transaction_id', '=', 'transaction_id')
-                ->join('coas', 'transaction_details.coa_id', '=', 'coa_id')
-                ->whereNull('transactions.deleted_at')
-                ->where('transactions.status', 'posted')
+        $startDateStr = $start->format('Y-m-d');
+        $endDateStr = $end->format('Y-m-d');
+
+        $daysCount = $start->diffInDays($end) + 1;
+
+        $internalTransferIds = DB::table('transaction_details')
+                ->join('coas', 'transaction_details.coa_id', '=', 'coas.id')
                 ->where('coas.is_cash_bank', 1)
-                ->whereBetween('transactions.date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-                ->selectRaw('DATE(transactions.date) as date_group, SUM(debit) as total_in, SUM(credit) as total_out')
+                ->select('transaction_id')
+                ->groupBy('transaction_id')
+                ->havingRaw('COUNT(DISTINCT coas.id) >= ?', [2])
+                ->pluck('transaction_id');
+
+        $incomes = DB::table('transactions')
+                ->whereNull('deleted_at')
+                ->where('status', Transaction::STATUS_POSTED)
+                ->whereIn('type', ['cash_in', 'bank_in', 'CASH_IN', 'BANK_IN'])
+                ->whereNotIn('id', $internalTransferIds)
+                ->whereBetween('date', [$startDateStr, $endDateStr])
+                ->selectRaw('DATE(date) as date_group, SUM(total_amount) as total_in')
                 ->groupBy('date_group')
-                ->orderBy('date_group', 'asc')
                 ->get()
                 ->keyBy('date_group');
         
+        $expenses = DB::table('transactions')
+                ->whereNull('deleted_at')
+                ->where('status', Transaction::STATUS_POSTED)
+                ->whereIn('type', ['cash_out', 'bank_out', 'CASH_OUT', 'BANK_OUT'])
+                ->whereNotIn('id', $internalTransferIds)
+                ->whereBetween('date', [$startDateStr, $endDateStr])
+                ->selectRaw('DATE(date) as date_group, SUM(total_amount) as total_out')
+                ->groupBy('date_group')
+                ->get()
+                ->keyBy('date_group');
+
         $labels = [];
         $incomeData = [];
         $expenseData = [];
 
-        for ($i=0; $i < $days; $i++) { 
-            $date = Carbon::now()->subDays($days - 1 - $i)->format('Y-m-d');
-            $formattedLabel = Carbon::parse($date)->format('d M');
+        for ($i=0; $i < $daysCount; $i++) { 
+            $currentDate = (clone $start)->addDays($i);
+            $dateStr = $currentDate->format('Y-m-d');
 
-            $labels[] = $formattedLabel;
-            $incomeData[] = (float) ($rawTrends[$date]->total_in ?? 0);
-            $expenseData[] = (float) ($rawTrends[$date]->total_out ?? 0);
+            $labels[] = $currentDate->format('d M Y');
+            $incomeData[] = (float) ($incomes[$dateStr]->total_in ?? 0);
+            $expenseData[] = (float) ($expenses[$dateStr]->total_out ?? 0);
         }
 
         return [
             'labels' => $labels,
             'incomeData' => $incomeData,
-            'expenseData' => $expenseData
+            'expenseData' => $expenseData,
+            'startDate' => $startDate,
+            'endDate' => $endDate
         ];
     }
 }
