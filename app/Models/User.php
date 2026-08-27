@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -10,6 +12,10 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    const ROLE_SUPER_ADMIN = 'super_admin';
+    const ROLE_MASTER = 'master';
+    const ROLE_STAFF = 'staff';
 
     /**
      * The attributes that are mass assignable.
@@ -49,17 +55,17 @@ class User extends Authenticatable
 
     public function isSuperAdmin(): bool
     {
-        return $this->role === 'super_admin';
+        return $this->role === self::ROLE_SUPER_ADMIN;
     }
 
     public function isMaster(): bool
     {
-        return $this->role === 'master';
+        return $this->role === self::ROLE_MASTER;
     }
 
     public function isStaff(): bool
     {
-        return $this->role === 'staff';
+        return $this->role === self::ROLE_STAFF;
     }
 
     public function getTenantId(): ?int
@@ -68,5 +74,15 @@ class User extends Authenticatable
             return null;
         }
         return $this->owner_id ?? $this->id;
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function staffMembers(): HasMany
+    {
+        return $this->hasMany(User::class, 'owner_id');
     }
 }

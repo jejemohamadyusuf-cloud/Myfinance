@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\TransactionController;
 use App\Http\Controllers\Web\ReportController;
 use App\Http\Controllers\Web\CoaController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\ProfileController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -25,22 +26,6 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::prefix('cash')->name('cash.')->group(function () {
-        Route::get('/', [TransactionController::class, 'cashIndex'])->name('index');
-        Route::get('/create', [TransactionController::class, 'cashCreate'])->name('create');
-    });
-});
-
-
-Route::middleware(['auth'])->group(function () {
-    Route::prefix('bank')->name('bank.')->group(function () {
-        Route::get('/', [TransactionController::class, 'bankIndex'])->name('index');
-        Route::get('/create', [TransactionController::class, 'bankCreate'])->name('create');
-    });
-});
-
-
-Route::middleware(['auth'])->group(function () {
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/journal', [ReportController::class, 'generalJournal'])->name('journal');
         Route::get('/ledger', [ReportController::class, 'generalLedger'])->name('ledger');
@@ -58,6 +43,31 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('cash')->name('cash.')->group(function () {
+        Route::get('/', [TransactionController::class, 'cashIndex'])->name('index');
+        Route::get('/create', [TransactionController::class, 'cashCreate'])->name('create');
+    });
+});
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('bank')->name('bank.')->group(function () {
+        Route::get('/', [TransactionController::class, 'bankIndex'])->name('index');
+        Route::get('/create', [TransactionController::class, 'bankCreate'])->name('create');
+    });
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('update');
+        Route::prefix('staff')->name('staff.')->group(function () {
+            Route::post('/staff', [ProfileController::class, 'storeStaff'])->name('store');
+            Route::delete('/staff/{id}', [ProfileController::class, 'destroystaff'])->name('destroy');
+        });     
+    });
+});
 
 require __DIR__.'/auth.php';
 
