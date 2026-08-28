@@ -64,7 +64,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
         Route::prefix('staff')->name('staff.')->group(function () {
             Route::post('/staff', [ProfileController::class, 'storeStaff'])->name('store');
-            Route::delete('/staff/{id}', [ProfileController::class, 'destroystaff'])->name('destroy');
+            Route::patch('{id}/toggle', [ProfileController::class, 'toggleStaff'])->name('toggle');
         });     
     });
 });

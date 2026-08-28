@@ -69,13 +69,20 @@
                         <td class="px-4 py-3 font-semibold text-slate-800">{{ $staff->name }}</td>
                         <td class="px-4 py-3 font-mono text-xs text-slate-500">{{ $staff->email }}</td>
                         <td class="px-4 py-3 text-right">
-                            <form action="{{ route('profile.staff.destroy', $staff->id) }}" method="POST"
-                                onsubmit="return confirm('Hapus akun staff ini?')" class="inline">
+                            <form action="{{ route('profile.staff.toggle', $staff->id) }}" method="POST"
+                                class="inline">
                                 @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-xs text-rose-600 hover:text-rose-800 font-semibold">
-                                    Hapus
-                                </button>
+                                @method('PATCH')
+                                @if ((bool) $staff->is_active)
+                                    <button type="submit"
+                                        onclick="return confirm('Are you sure deactivate this account ?')"
+                                        class="text-xs text-rose-600 hover:text-rose-800 font-semibold">
+                                        Deactivate
+                                    </button>
+                                @else
+                                    <button type="submit"
+                                        class="px-2 py-1 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 rounded text-xs font-semibold">Active</button>
+                                @endif
                             </form>
                         </td>
                     </tr>

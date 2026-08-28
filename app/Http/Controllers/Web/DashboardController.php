@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Services\CoaService;
+use App\Models\Transaction;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -21,14 +22,17 @@ class DashboardController extends Controller
 
     public function index(Request $request): View
     {
-        $cashBalance = $this->coaService->getCashBalance();
-        $bankBalance = $this->coaService->getBankBalance();
+        $user = auth()->user();
+        $masterId = $user->isMaster() ? $user->id : $user->owner_id;
+
+        $cashBalance = $this->coaService->getCashBalance($masterId);
+        $bankBalance = $this->coaService->getBankBalance($masterId);
         $totalBalance = $cashBalance + $bankBalance;
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $trends = $this->transactionService->getDailyTransactionTrends($startDate, $endDate);
+        $trends = $this->transactionService->getDailyTransactionTrends($startDate, $endDate, $masterId);
 
         return view('dashboard', compact('cashBalance', 'bankBalance', 'totalBalance', 'trends'));
     }

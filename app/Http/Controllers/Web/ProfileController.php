@@ -42,11 +42,11 @@ class ProfileController extends Controller
         }
     }
 
-    public function destroyStaff(Request $request, int $id): RedirectResponse
+    public function toggleStaff(Request $request, int $id): RedirectResponse
     {
         try {
-            $this->profileService->deleteStaff($request->user(), $id);
-            return redirect()->route('profile.edit')->with('success', 'Account has been deleted!');
+            $this->profileService->toggleStaffStatus($request->user(), $id);
+            return redirect()->route('profile.edit')->with('success', 'Status has been changed!');
         } catch (\Exception $e) {
             return redirect()->route('profile.edit')->with('error', $e->getMessage());
         }

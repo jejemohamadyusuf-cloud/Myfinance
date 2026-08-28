@@ -15,48 +15,74 @@ class TransactionService
 {
     use HasTransactionNumber;
 
-    public function getCashTransactions(int $perPage = 10): LengthAwarePaginator
+    public function getCashTransactions(int $perPage = 10, int $masterId = null): LengthAwarePaginator
     {
-        return Transaction::whereIn('type', ['cash_in', 'cash_out', 'CASH_IN', 'CASH_OUT'])
-            ->orderBy('date', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate($perPage);
-    }
+        $query = Transaction::whereIn('type', ['cash_in', 'cash_out', 'CASH_IN', 'CASH_OUT']);
 
-    public function getBankTransactions(int $perPage = 10): LengthAwarePaginator
-    {
-        return Transaction::whereIn('type', ['bank_in', 'bank_out', 'BANK_IN', 'BANK_OUT'])
-            ->orderBy('date', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate($perPage);
-    }
-
-    public function getTransactionById(int $id): Transaction
-    {
-        return Transaction::with('details.coa')->findOrFail($id);
-    }
-
-    public function getCoaOptionsForTransaction(string $category): array
-    {
-        if ($category === 'bank') {
-            $cashBankCoas = Coa::where('is_cash_bank', 1)->where('name', 'LIKE', '%bank%')->orderBy('code')->get();
-        } else {
-            $cashBankCoas = Coa::where('is_cash_bank', 1)->where('name', 'NOT LIKE', '%bank%')->orderBy('code')->get();
+        if ($masterId) {
+            $query->where('owner_id', $masterId);
         }
 
-        $opponentCoas = Coa::orderBy('code')->get();
+        return $query
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
+    }
+
+    public function getBankTransactions(int $perPage = 10, int $masterId = null): LengthAwarePaginator
+    {
+        $query = Transaction::whereIn('type', ['bank_in', 'bank_out', 'BANK_IN', 'BANK_OUT']);
+        
+        if ($masterId) {
+            $query->where('owner_id', $masterId);
+        }
+        
+        return $query
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
+    }
+
+    public function getTransactionById(int $id, ?int $masterId = null): Transaction
+    {
+        $query = Transaction::with('details.coa');
+
+        if ($masterId) {
+            $query->where('owner_id', $masterId);
+        }
+
+        return $query->findOrFail($id);
+    }
+
+    public function getCoaOptionsForTransaction(string $category, ?int $masterId = null): array
+    {
+        $cashBankQuery = Coa::where('is_cash_bank', 1);
+        $opponentQuery = Coa::query();
+
+        if ($masterId) {
+            $cashBankQuery->where('owner_id', $masterId);
+            $opponentQuery->where('owner_id', $masterId);
+        }
+
+        if ($category === 'bank') {
+            $cashBankCoas = (clone $cashBankQuery)->where('name', 'LIKE', '%bank%')->orderBy('code')->get();
+        } else {
+            $cashBankCoas = (clone $cashBankQuery)->where('name', 'NOT LIKE', '%bank%')->orderBy('code')->get();
+        }
+
+        $opponentCoas = $opponentQuery->orderBy('code')->get();
 
         return compact('cashBankCoas', 'opponentCoas');
     }
 
-    public function getTransactionFormData(int $id): array
+    public function getTransactionFormData(int $id, ?int $masterId = null): array
     {
-        $transaction = $this->getTransactionById($id);
+        $transaction = $this->getTransactionById($id, $masterId);
         $type = strtolower($transaction->type);
         $isBank = in_array($type, ['bank_in', 'bank_out']);
         $category = $isBank ? 'bank' : 'cash';
 
-        $coas = $this->getCoaOptionsForTransaction($category);
+        $coas = $this->getCoaOptionsForTransaction($category, $masterId);
         $cashBankCoas = $coas['cashBankCoas'];
         $opponentCoas = $coas['opponentCoas'];
 
@@ -92,14 +118,15 @@ class TransactionService
         return compact('transaction', 'cashBankCoas', 'opponentCoas', 'cashBankCoaId', 'opponentCoaId', 'amount', 'category');
     }
 
-    public function createTransaction(array $data): Transaction
+    public function createTransaction(array $data, ?int $masterId = null): Transaction
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $masterId) {
             //generate nomor transaksi
             $transactionNumber = self::generateNumber($data['type'], $data['date']);
             
             //header
             $transaction = Transaction::create([
+                'owner_id' => $masterId ?? auth()->user()->owner_id ?? auth()->id(),
                 'transaction_number' => $transactionNumber,
                 'status' => Transaction::STATUS_POSTED,
                 'type' => strtolower($data['type']),
@@ -125,10 +152,10 @@ class TransactionService
         });
     }
 
-    public function updateTransaction(int $id, array $data): Transaction
+    public function updateTransaction(int $id, array $data, ?int $masterId = null): Transaction
     {
-        return DB::transaction(function () use ($id, $data) {
-            $transaction = Transaction::findOrFail($id);
+        return DB::transaction(function () use ($id, $data, $masterId) {
+            $transaction = $this->getTransactionById($id, $masterId);
 
             $transaction->update([
                 'type' => strtolower($data['type']),
@@ -203,22 +230,22 @@ class TransactionService
         }
     }
 
-    public function voidTransaction(int $id): Transaction
+    public function voidTransaction(int $id, ?int $masterId = null): Transaction
     {
-        return DB::transaction(function () use ($id) {
-            $transaction = Transaction::findOrFail($id);
+        return DB::transaction(function () use ($id, $masterId) {
+            $transaction = $this->getTransactionById($id, $masterId);
             $transaction->update(['status' => Transaction::STATUS_VOID]);
             return $transaction;
         });
     }
 
-    public function getDailyTransactionTrends(?string $startDate = null, ?string $endDate = null): array
+    public function getDailyTransactionTrends(?string $startDate = null, ?string $endDate = null, ?int $masterId = null): array
     {
         $start = $startDate ? Carbon::parse($startDate)->startOfDay() : Carbon::now()->subDays(6)->startOfDay();
         $end = $endDate ? Carbon::parse($endDate)->endOfDay() : Carbon::now()->endOfDay();
 
-        $startDateStr = $start->format('Y-m-d');
-        $endDateStr = $end->format('Y-m-d');
+        $startDateStr = $start->format('Y-m-d 00:00:00');
+        $endDateStr = $end->format('Y-m-d 23:59:59');
 
         $daysCount = $start->diffInDays($end) + 1;
 
@@ -229,28 +256,50 @@ class TransactionService
                 ->groupBy('transaction_id')
                 ->havingRaw('COUNT(DISTINCT coas.id) >= ?', [2])
                 ->pluck('transaction_id');
-
-        $incomes = DB::table('transactions')
+        //fetch income
+        $incomesQuery = DB::table('transactions')
                 ->whereNull('deleted_at')
-                ->where('status', Transaction::STATUS_POSTED)
+                ->where('status', ['posted', 'POSTED'])
                 ->whereIn('type', ['cash_in', 'bank_in', 'CASH_IN', 'BANK_IN'])
-                ->whereNotIn('id', $internalTransferIds)
-                ->whereBetween('date', [$startDateStr, $endDateStr])
-                ->selectRaw('DATE(date) as date_group, SUM(total_amount) as total_in')
-                ->groupBy('date_group')
-                ->get()
-                ->keyBy('date_group');
+                ->whereBetween('date', [$startDateStr, $endDateStr]);
         
-        $expenses = DB::table('transactions')
-                ->whereNull('deleted_at')
-                ->where('status', Transaction::STATUS_POSTED)
-                ->whereIn('type', ['cash_out', 'bank_out', 'CASH_OUT', 'BANK_OUT'])
-                ->whereNotIn('id', $internalTransferIds)
-                ->whereBetween('date', [$startDateStr, $endDateStr])
-                ->selectRaw('DATE(date) as date_group, SUM(total_amount) as total_out')
-                ->groupBy('date_group')
-                ->get()
-                ->keyBy('date_group');
+        if ($internalTransferIds->isNotEmpty()) {
+            $incomesQuery->whereNotIn('id', $internalTransferIds);
+        }
+
+        if ($masterId) {
+            $incomesQuery->where('tenant_id', $masterId);
+        }
+
+        $rawIncomes = $incomesQuery->select('date', 'total_amount')->get();        
+
+        $incomes = [];
+        foreach ($rawIncomes as $item) {
+            $formattedKey = Carbon::parse($item->date)->format('Y-m-d');
+            $incomes[$formattedKey] = ($incomes[$formattedKey] ?? 0) + (float) $item->total_amount;
+        }
+        //fetch expense
+        $expensesQuery = DB::table('transactions')
+            ->whereNull('deleted_at')
+            ->where('status', ['posted','POSTED'])
+            ->whereIn('type', ['cash_out', 'bank_out', 'CASH_OUT', 'BANK_OUT'])
+            ->whereBetween('date', [$startDateStr, $endDateStr]);
+        
+        if ($internalTransferIds->isNotEmpty()) {
+            $expensesQuery->whereNotIn('id', $internalTransferIds);
+        }
+
+        if ($masterId) {
+            $expensesQuery->where('tenant_id', $masterId);
+        }
+
+        $rawExpenses = $expensesQuery->select('date', 'total_amount')->get();
+
+        $expenses = [];
+        foreach ($rawExpenses as $item) {
+            $formattedKey = Carbon::parse($item->date)->format('Y-m-d');
+            $expenses[$formattedKey] = ($expenses[$formattedKey] ?? 0) + (float) $item->total_amount;
+        }
 
         $labels = [];
         $incomeData = [];
@@ -261,8 +310,8 @@ class TransactionService
             $dateStr = $currentDate->format('Y-m-d');
 
             $labels[] = $currentDate->format('d M Y');
-            $incomeData[] = (float) ($incomes[$dateStr]->total_in ?? 0);
-            $expenseData[] = (float) ($expenses[$dateStr]->total_out ?? 0);
+            $incomeData[] = $incomes[$dateStr] ?? 0;
+            $expenseData[] = $expenses[$dateStr] ?? 0;
         }
 
         return [

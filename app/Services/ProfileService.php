@@ -34,19 +34,38 @@ class ProfileService
         ]);
     }
 
-    public function deleteStaff(User $masterUser, int $staffId): bool
+    public function toggleStaffStatus(User $masterUser, int $staffId): bool
     {
         $staff = User::findOrFail($staffId);
 
         if ($staff->isMaster() || $staff->isSuperAdmin()) {
-            throw new Exception('Master or Super Admin cant be deleted');
+            throw new Exception('Master or Super Admin cant be deactived');
         }
 
         if ($masterUser->isMaster() && $staff->owner_id !== $masterUser->id) {
-            throw new Exception('You cannot delete this user');
+            throw new Exception('You cannot deactived this user');
         }
 
-        return $staff?->delete();
+        if ($staff->is_active) {
+            $cleanEmail = preg_replace('/^(deactivated_\d+_)+/', '', $staff->email);
+            $staff->update([
+                'is_active' => false,
+                'email' => 'deactivated_' . time() . '_' . $cleanEmail
+            ]);
+        } else {
+            $restoredEmail = preg_replace('/^(deactivated_\d+_)+/', '', $staff->email);
+            $emailExists = User::where('email', $restoredEmail)->where('id', '!=', $staff->id)->exists();
+
+            if ($emailExists) {
+                throw new Exception("Email '{{$restoredEmail}}' already registred try another one!");
+            }
+            $staff->update([
+                'is_active' => true,
+                'email' => $restoredEmail
+                ]);
+        }
+
+        return true;
     }
 }
 
