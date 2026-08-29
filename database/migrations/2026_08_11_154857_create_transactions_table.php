@@ -13,14 +13,17 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('transaction_number')->unique();
+            $table->foreignId('tenant_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('transaction_number');
             $table->enum('type', ['cash_in', 'cash_out', 'bank_in', 'bank_out']);
             $table->date('date');
-            $table->text('description')->nullable(); //mau diganti ke remark
+            $table->text('description')->nullable();
             $table->decimal('total_amount', 15, 2);
             $table->string('status')->default('posted');
             $table->softDeletes();
             $table->timestamps();
+            $table->unique(['tenant_id', 'transaction_number']);
         });
     }
 
@@ -29,6 +32,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('transactions');
+        Schema::enableForeignKeyConstraint();
     }
 };

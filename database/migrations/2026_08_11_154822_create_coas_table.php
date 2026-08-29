@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('coas', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('tenant_id')->constrained('users')->cascadeOnDelete();
             $table->string('code');
             $table->string('name');
             $table->enum('type', ['asset', 'liability', 'equity', 'revenue', 'expense']);
@@ -28,6 +29,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('coas');
+        Schema::enableForeignKeyConstraints();    
     }
 };

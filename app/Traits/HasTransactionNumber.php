@@ -20,11 +20,13 @@ trait HasTransactionNumber
         $yearMonth = $carbonDate->format('ym');
         $searchPrefix = $prefix . $yearMonth;
 
-        $tenantId = auth()->check() ? auth()->user()->getTenantId() : null;
-
+        $tenantId = null;
+        if (auth()->check())  {
+            $user = auth()->user();
+            $tenantId = method_exists($user, 'getTenantId') ? $user->getTenantId() : ($user->isMaster() ? $user->id : $user->owner_id);
+        }
         $lastTransaction = Transaction::where('tenant_id', $tenantId)->where('transaction_number', 'LIKE', $searchPrefix .'%')
-        ->withTrashed()
-        ->orderBy('transaction_number', 'desc')
+        ->orderBy('id', 'desc')
         ->first();
 
         if (! $lastTransaction) {
