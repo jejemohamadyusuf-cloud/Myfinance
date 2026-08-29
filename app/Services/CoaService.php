@@ -60,9 +60,18 @@ class CoaService
     public function deleteCoa(int $id,): bool
     {
         $coa = $this->getCoaById($id);
-        $hasTransactions = $coa->transactionDetails?->exists();
-        if ($hasTransactions) {
-            throw new \Exception('Cannot delete COA because it has recorded transaction');
+
+        if (!$coa) {
+            throw new \Exception('COA not found.');
+        }
+
+        // Gunakan Query Builder dengan kurung () agar efisien dan pasti
+        if ($coa->transactionDetails()->exists()) {
+            throw new \Exception('Cannot delete COA because it has recorded transaction.');
+        }
+
+        if ($coa->children()->exists()) {
+            throw new \Exception('Cannot delete COA because it has sub-accounts.');
         }
     
         return $coa->delete();

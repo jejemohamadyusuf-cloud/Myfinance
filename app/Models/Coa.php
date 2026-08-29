@@ -45,7 +45,7 @@ class Coa extends Model
 
     public function transactionDetails(): HasMany
     {
-        return $this->hasMany(Transaction::class, 'coa_id');
+        return $this->hasMany(TransactionDetail::class, 'coa_id');
     }
 
     public function scopeCashOnly(Builder $query): Builder
