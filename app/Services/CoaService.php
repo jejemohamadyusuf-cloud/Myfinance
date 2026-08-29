@@ -10,32 +10,48 @@ use Illuminate\Support\Facades\DB;
 
 class CoaService
 {
+    private function getTenantId(): int
+    {
+        $user = auth()->user();
+        return $user->isMaster() ? $user->id : $user->owner->id;
+    }
+
     public function getAllCoas(int $perPage = 10): LengthAwarePaginator
     {
-        return Coa::orderBy('code', 'asc')->paginate($perPage);
+        return Coa::where('tenant_id', $this->getTenantId())
+            ->orderBy('code', 'asc')->paginate($perPage);
     }
 
     public function getCoaOptions(): Collection
     {
-        return Coa::select('id', 'code', 'name', 'type')->orderBy('code', 'asc')->get();
+        return Coa::where('tenant_id', $this->getTenantId())
+            ->select('id', 'code', 'name', 'type')
+            ->orderBy('code', 'asc')
+            ->get();
     }
 
     public function getCoaById(int $id): Coa
     {
-        return Coa::findOrFail($id);
+        return Coa::where('tenant_id', $this->getTenantId())->findOrFail($id);
     }
 
     public function createCoa(array $data): Coa
     {
         $data['is_cash_bank'] = isset($data['is_cash_bank']) ? (bool) $data['is_cash_bank']: false;
         
-        return Coa::create($data);
+        return Coa::create([
+            'tenant_id' => $this->getTenantId(),
+            'code' => $data['code'],
+            'name' => $data['name'],
+            'type' => $data['type'],
+            'is_cash_bank' => filter_var($data['is_cash_bank'] ?? false, FILTER_VALIDATE_BOOLEAN),
+        ]);
     }
 
     public function updateCoa(int $id, array $data): Coa
     {
-        $coa = Coa::findOrFail($id);
-        $data['is_cash_bank'] = isset($data['is_cash_bank']) ? (bool) $data['is_cash_bank']: false;
+        $coa = $this->getCoaById($id);
+        $data['is_cash_bank'] = filter_var($data['is_cash_bank'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $coa->update($data);
         return $coa;
@@ -43,68 +59,55 @@ class CoaService
 
     public function deleteCoa(int $id,): bool
     {
-        $coa = Coa::findOrFail($id);
-        if ($coa->transactionDetails?->exists()) {
+        $coa = $this->getCoaById($id);
+        $hasTransactions = $coa->transactionDetails?->exists();
+        if ($hasTransactions) {
             throw new \Exception('Cannot delete COA because it has recorded transaction');
         }
-
+    
         return $coa->delete();
     }
 
     public function getCashBalance(): float
     {
-        $cashCoaIds = Coa::where('is_cash_bank', 1)->whereRaw('name NOT LIKE?' , '%bank%')->pluck('id');
-        if ($cashCoaIds->isEmpty()) {
-            return 0.0;
-        }
-
-        $totals = DB::table('transaction_details')
-            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
-            ->whereIn('transaction_details.coa_id', $cashCoaIds)
-            ->whereNull('transactions.deleted_at')
-            ->where('transactions.status', 'posted')
-            ->selectRaw('SUM(debit) as total_debit, SUM(credit) as total_credit')
-            ->first();
-
-        $debit = $totals->total_debit ?? 0;
-        $credit = $totals->total_credit ?? 0;
-
-        return (float) ($debit-$credit);
+        $cashCoaIds = Coa::where('tenant_id', $this->getTenantId())
+            ->where('is_cash_bank', 1)
+            ->where(function ($query) {
+                $query->where('name', 'LIKE' , '%kas%')
+                      ->orWhere('name', 'LIKE', '%cash%')
+                      ->orWhere('name', 'NOT LIKE', '%bank%');
+            })->pluck('id');
+        
+            return $this->getCalculateBalanceByCoaIds($cashCoaIds);
     }
 
     public function getBankBalance(): float
     {
-        $bankCoaIds = Coa::where('is_cash_bank', 1)->whereRaw('name LIKE?' , '%bank%')->pluck('id');
-        if ($bankCoaIds->isEmpty()) {
-            return 0.0;
-        }
+        $cashCoaIds = Coa::where('tenant_id', $this->getTenantId())
+            ->where('is_cash_bank', 1)
+            ->where(function ($query) {
+                $query->where('name', 'LIKE', '%kas%')
+                      ->orWhere('name', 'LIKE', '%cash%');
+            })->pluck('id');
 
-        $totals = DB::table('transaction_details')
-            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
-            ->whereIn('transaction_details.coa_id', $bankCoaIds)
-            ->whereNull('transactions.deleted_at')
-            ->where('transactions.status', 'posted')
-            ->selectRaw('SUM(debit) as total_debit, SUM(credit) as total_credit')
-            ->first();
+        $bankCoaIds = Coa::where('tenant_id', $this->getTenantId())->where('is_cash_bank', 1)->whereNotIn('id', $cashCoaIds)->pluck('id');
         
-        $debit = $totals->total_debit ?? 0;
-        $credit = $totals->total_credit ?? 0;
-
-        return (float) ($debit-$credit);
+        return $this->getCalculateBalanceByCoaIds($bankCoaIds);
     }
 
-    private function calculateBalanceByCoaIds($coaIds): float
+    private function getCalculateBalanceByCoaIds($coaIds): float
     {
         if ($coaIds->isEmpty()) {
             return 0.0;
         }
 
         $totals = DB::table('transaction_details')
-            ->join('transactions', 'transaction_details.transaction_id', '=', 'transaction_id')
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
             ->whereIn('transaction_details.coa_id', $coaIds)
             ->whereNull('transactions.deleted_at')
-            ->where('transactions.status', 'posted')
-            ->selectRaw('SUM(debit) as total_debit, SUM(credit) as total_credit')
+            ->whereIn('transactions.status', ['posted', 'POSTED'])
+            ->selectRaw('SUM(transaction_details.debit) as total_debit,
+                         SUM(transaction_details.credit) as total_credit')
             ->first();
         
         $debit = $totals->total_debit ?? 0;

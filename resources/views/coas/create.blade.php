@@ -81,7 +81,8 @@
                     <div class="pt-2">
                         <label class="inline-flex items-center cursor-pointer">
                             <input type="checkbox" name="is_cash_bank" value="1"
-                                {{ old('is_cash_bank') ? 'checked' : '' }} class="sr-only peer">
+                                {{ old('is_cash_bank', $coa->is_cash_bank ?? false) ? 'checked' : '' }}
+                                class="sr-only peer">
                             <div
                                 class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600">
                             </div>

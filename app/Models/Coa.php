@@ -11,6 +11,9 @@ class Coa extends Model
 {
     protected $guarded = ['id'];
     protected $fillable = ['tenant_id', 'code', 'name', 'type', 'is_cash_bank', 'parent_id'];
+    protected $cast = [
+        'is_cash_bank' => 'boolean'
+    ];
 
     public static function booted(): void
     {

@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('coas', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
+            $table->string('code');
             $table->string('name');
             $table->enum('type', ['asset', 'liability', 'equity', 'revenue', 'expense']);
             $table->boolean('is_cash_bank')->default(false);
             $table->foreignId('parent_id')->nullable()->constrained('coas')->nullOnDelete();
             $table->timestamps();
+            $table->unique(['tenant_id', 'code']);
         });
     }
 

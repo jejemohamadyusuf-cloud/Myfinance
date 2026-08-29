@@ -14,18 +14,21 @@ class StoreCoaRequest extends FormRequest
 
     public function rules(): array
     {
-        $tenantId = auth()->check() ? auth()->user()->getTenantId() : null;
+        $user = auth()->user();
+        $tenantId = $user->isMaster() ? $user->id : $user->owner_id;
 
         return [
             'code'         => [
                 'required',
                 'string',
                 'max:20',
-                Rule::unique('coas', 'code',)->where(fn ($query) => $query->where('tenant_id', $tenantId))
+                Rule::unique('coas', 'code',)->where(function ($query) use ($tenantId) {
+                    return $query->where('tenant_id', $tenantId);
+                })
             ],
             'name'         => 'required|string|max:255',
             'type'         => 'required|in:asset,liability,equity,revenue,expense',
-            'is_cash_bank' => 'nullable|boolean',
+            'is_cash_bank' => 'boolean',
         ];
     }
 }

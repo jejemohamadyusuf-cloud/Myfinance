@@ -14,21 +14,22 @@ class UpdateCoaRequest extends FormRequest
 
     public function rules(): array
     {
-        $coaId = $this->route('id') ?? $this->route('coa');
-        $tenantId = auth()->check() ? auth()->user()->getTenantId() : null;
+        $user = auth()->user();
+        $tenantId = $user->isMaster() ? $user->id : $user->owner_id;
+        $coaId = $this->route('coa')?->id ?? $this->route('coa') ?? $this->id;
 
         return [
             'code' => [
                 'required', 
                 'string', 
-                'max:20', 
-                Rule::unique('coas', 'code')
-                    ->ignore($coaId)
-                    ->where(fn ($query) => $query->where('tenant_id', $tenantId))
+                'max:50', 
+                Rule::unique('coas', 'code')->where(function ($query) use ($tenantId) {
+                    return $query->where('tenant_id', $tenantId);
+                })->ignore($coaId)
             ],
             'name'         => 'required|string|max:255',
             'type'         => 'required|in:asset,liability,equity,revenue,expense',
-            'is_cash_bank' => 'nullable|boolean',
+            'is_cash_bank' => 'nullable|boolean'
         ];
     }
 }
