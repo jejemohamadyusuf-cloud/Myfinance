@@ -11,7 +11,7 @@
         </div>
 
         <!-- Top Cards (Ringkasan Saldo) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
             <!-- Card 1: Saldo Kas -->
             <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
@@ -50,6 +50,19 @@
                     <span
                         class="inline-block text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 mt-2">
                         Kas + Bank Total
+                    </span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Expense</p>
+                    <h3 class="text-2xl font-extrabold text-red-400 text-slate-800 font-mono mt-1">
+                        Rp {{ number_format($expenseBalance, 2, ',', '.') }}
+                    </h3>
+                    <span
+                        class="inline-block text-[11px] font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200 mt-2">
+                        Total Expense
                     </span>
                 </div>
             </div>

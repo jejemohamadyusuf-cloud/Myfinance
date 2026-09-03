@@ -259,7 +259,7 @@ class TransactionService
         //fetch income
         $incomesQuery = DB::table('transactions')
                 ->whereNull('deleted_at')
-                ->where('status', ['posted', 'POSTED'])
+                ->whereIn('status', ['posted', 'POSTED'])
                 ->whereIn('type', ['cash_in', 'bank_in', 'CASH_IN', 'BANK_IN'])
                 ->whereBetween('date', [$startDateStr, $endDateStr]);
         
@@ -281,7 +281,7 @@ class TransactionService
         //fetch expense
         $expensesQuery = DB::table('transactions')
             ->whereNull('deleted_at')
-            ->where('status', ['posted','POSTED'])
+            ->whereIn('status', ['posted','POSTED'])
             ->whereIn('type', ['cash_out', 'bank_out', 'CASH_OUT', 'BANK_OUT'])
             ->whereBetween('date', [$startDateStr, $endDateStr]);
         

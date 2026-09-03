@@ -104,20 +104,41 @@ class CoaService
         return $this->getCalculateBalanceByCoaIds($bankCoaIds);
     }
 
-    private function getCalculateBalanceByCoaIds($coaIds): float
+    public function getExpenseBalance(string $period = 'this_month'): float
+    {
+        $expenseCoaIds = Coa::where('tenant_id', $this->getTenantId())
+            ->whereIn('type', ['expense', 'liability'])->pluck('id');
+
+        if ($expenseCoaIds->isEmpty()) {
+            return 0.0;
+        }
+        
+        return $this->getCalculateBalanceByCoaIds($expenseCoaIds, $period);
+    }
+
+    private function getCalculateBalanceByCoaIds($coaIds, string $period = 'all_time'): float
     {
         if ($coaIds->isEmpty()) {
             return 0.0;
         }
 
-        $totals = DB::table('transaction_details')
+        $query = DB::table('transaction_details')
             ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
             ->whereIn('transaction_details.coa_id', $coaIds)
+            ->where('transactions.tenant_id', $this->getTenantId())
             ->whereNull('transactions.deleted_at')
-            ->whereIn('transactions.status', ['posted', 'POSTED'])
-            ->selectRaw('SUM(transaction_details.debit) as total_debit,
-                         SUM(transaction_details.credit) as total_credit')
-            ->first();
+            ->whereIn('transactions.status', ['posted', 'POSTED']);
+
+        if ($period === 'this_month') {
+            $query->whereMonth('transactions.date', now()->month)
+                  ->whereYear('transactions.date', now()->year);
+        } elseif ($period === 'this_year') {
+            $query->whereYear('transactions.date', now()->year);
+        }
+
+        $totals = $query->selectRaw('
+        SUM(transaction_details.debit) as total_debit,
+        SUM(transaction_details.credit) as total_credit')->first();
         
         $debit = $totals->total_debit ?? 0;
         $credit = $totals->total_credit ?? 0;

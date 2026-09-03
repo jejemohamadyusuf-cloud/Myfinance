@@ -34,6 +34,6 @@ return new class extends Migration
     {
         Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('transactions');
-        Schema::enableForeignKeyConstraint();
+        Schema::enableForeignKeyConstraints();
     }
 };
