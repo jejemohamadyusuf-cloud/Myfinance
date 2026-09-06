@@ -20,6 +20,12 @@
              mkdir($dir, 0755, true);
          }
      }
+
+     putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
+     putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
+     putenv('APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php');
+     putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
+     putenv('APP_EVENTS_CACHE=/tmp/bootstrap/cache/events.php');
  
      // Memuat aplikasi menggunakan dirname() agar path aman
      require dirname(__DIR__) . '/vendor/autoload.php';
