@@ -1,57 +1,41 @@
-<<<<<<< HEAD
-*.log
-.DS_Store
+/vendor/
+node_modules/
+
+#Environment
 .env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
-/node_modules
+
+#Laravel
 /public/build
 /public/hot
 /public/storage
 /storage/*.key
 /storage/pail
-/vendor
-Homestead.json
-Homestead.yaml
-Thumbs.db
-=======
-/vendor/
-node_modules/
+
+#Logs
+*.log
 npm-debug.log
 yarn-error.log
 
-# Laravel 4 specific
-bootstrap/compiled.php
-app/storage/
-
-# Laravel 5 & Lumen specific
-public/storage
-public/hot
-
-# Laravel 5 & Lumen specific with changed public path
-public_html/storage
-public_html/hot
-
-storage/*.key
-.env
-Homestead.yaml
-Homestead.json
-/.vagrant
+#PHPUnit
 .phpunit.result.cache
+/.phpunit.cache
 
-/public/build
-/storage/pail
-.env.backup
-.env.production
+#IDE / OS
+.DS_Store
+Thumbs.db
+/.idea
+/.vscode
+/.fleet
+/.nova
+/.zed
+
+#Laravel Development
+Homestead.json
+Homestead.yaml
+/.vagrant
+
+#PHP tools
 .phpactor.json
-auth.json
->>>>>>> dd0d70e8483906007c9c96d7ae858c1afe5a16fe
+/auth.json
