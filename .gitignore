@@ -1,28 +1,39 @@
-/vendor/
-node_modules/
-
-#Environment
-.env
-.env.backup
-.env.production
-
-#Laravel
-/public/build
+# [+] Dependencies & Build Artifacts
+/vendor
+/node_modules
 /public/hot
 /public/storage
+
+# [+] Persistent Data / Local DB (Sangat Penting untuk Sistem Keuangan)
+/storage/database/*.sqlite
 /storage/*.key
 /storage/pail
 
-#Logs
+# [+] Environment & Kredensial Sensitive
+.env
+.env.*
+!.env.example
+/auth.json
+
+# [+] Source Control
+.git
+.github
+
+# [+] Logs
 *.log
 npm-debug.log
 yarn-error.log
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
 
-#PHPUnit
+# [+] Tests & Caches
+tests
 .phpunit.result.cache
 /.phpunit.cache
 
-#IDE / OS
+# [+] IDE & OS Junk
 .DS_Store
 Thumbs.db
 /.idea
@@ -31,11 +42,8 @@ Thumbs.db
 /.nova
 /.zed
 
-#Laravel Development
+# [+] Dev Tools
 Homestead.json
 Homestead.yaml
 /.vagrant
-
-#PHP tools
 .phpactor.json
-/auth.json
