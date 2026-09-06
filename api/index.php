@@ -26,6 +26,12 @@
      putenv('APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php');
      putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
      putenv('APP_EVENTS_CACHE=/tmp/bootstrap/cache/events.php');
+
+     putenv('LOG_CHANNEL=stderr'); // Menampilkan log langsung ke dashboard Vercel
+     putenv('LOG_STDERR_FORMATTER=Monolog\Formatter\JsonFormatter');
+     putenv('SESSION_DRIVER=cookie'); // Session paling aman untuk arsitektur serverless
+     putenv('CACHE_STORE=file'); // Cache diarahkan ke /tmp yang sudah kita buat
+     putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
  
      // Memuat aplikasi menggunakan dirname() agar path aman
      require dirname(__DIR__) . '/vendor/autoload.php';
