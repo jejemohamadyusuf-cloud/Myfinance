@@ -44,4 +44,5 @@
      echo "<h1>System Error Log:</h1>";
      echo "<b>Message:</b> " . $e->getMessage() . "<br><br>";
      echo "<b>File:</b> " . $e->getFile() . " (Line: " . $e->getLine() . ")<br><br>";
+     echo "<b>Stack Trace:</b><br><pre>" . $e->getTraceAsString() . "</pre><br><br>";
  }
