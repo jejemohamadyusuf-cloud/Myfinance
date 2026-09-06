@@ -10,27 +10,38 @@
         </button>
     </header>
 
-    <!-- Form Tambah Staff -->
-    <div id="add-staff-form" class="hidden p-4 bg-slate-50 rounded-xl border border-slate-200">
+    <!-- 🟢 Form Tambah Staff (Otomatis tampil jika ada error validasi) -->
+    <div id="add-staff-form"
+        class="{{ $errors->any() ? '' : 'hidden' }} p-4 bg-slate-50 rounded-xl border border-slate-200">
         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Pendaftaran Staff Baru</h3>
-        <form action="{{ route('profile.staff.store') }}" method="POST" class="space-y-3">
+        <form action="{{ route('profile.staff.store') }}" method="POST" onsubmit="disableStaffSubmitButton(this)"
+            class="space-y-3">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">Nama Lengkap</label>
-                    <input type="text" name="name" required
-                        class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <input type="text" name="name" value="{{ old('name') }}" required
+                        class="w-full text-xs px-3 py-2 border @error('name') border-rose-500 @else border-slate-300 @enderror rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    @error('name')
+                        <p class="text-[11px] text-rose-500 mt-1 font-medium">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">Email</label>
-                    <input type="email" name="email" required
-                        class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <input type="email" name="email" value="{{ old('email') }}" required
+                        class="w-full text-xs px-3 py-2 border @error('email') border-rose-500 @else border-slate-300 @enderror rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    @error('email')
+                        <p class="text-[11px] text-rose-500 mt-1 font-medium">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">Password</label>
                     <input type="password" name="password" required
-                        class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        class="w-full text-xs px-3 py-2 border @error('password') border-rose-500 @else border-slate-300 @enderror rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    @error('password')
+                        <p class="text-[11px] text-rose-500 mt-1 font-medium">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">Konfirmasi Password</label>
@@ -44,8 +55,8 @@
                     class="px-3 py-1.5 bg-slate-200 text-slate-700 text-xs rounded-lg font-semibold">
                     Batal
                 </button>
-                <button type="submit"
-                    class="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg font-semibold hover:bg-indigo-700">
+                <button type="submit" id="save-staff-btn"
+                    class="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg font-semibold hover:bg-indigo-700 transition">
                     Simpan Staff
                 </button>
             </div>
@@ -70,18 +81,20 @@
                         <td class="px-4 py-3 font-mono text-xs text-slate-500">{{ $staff->email }}</td>
                         <td class="px-4 py-3 text-right">
                             <form action="{{ route('profile.staff.toggle', $staff->id) }}" method="POST"
-                                class="inline">
+                                onsubmit="disableToggleBtn(this)" class="inline">
                                 @csrf
                                 @method('PATCH')
                                 @if ((bool) $staff->is_active)
                                     <button type="submit"
                                         onclick="return confirm('Are you sure deactivate this account ?')"
-                                        class="text-xs text-rose-600 hover:text-rose-800 font-semibold">
+                                        class="text-xs text-rose-600 hover:text-rose-800 font-semibold toggle-btn">
                                         Deactivate
                                     </button>
                                 @else
                                     <button type="submit"
-                                        class="px-2 py-1 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 rounded text-xs font-semibold">Active</button>
+                                        class="px-2 py-1 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 rounded text-xs font-semibold toggle-btn">
+                                        Activate
+                                    </button>
                                 @endif
                             </form>
                         </td>
@@ -97,3 +110,31 @@
         </table>
     </div>
 </section>
+
+<!-- 🟢 [MARK: SCRIPT] Handler Disable Button untuk Submit Staff & Toggle -->
+<script>
+    function disableStaffSubmitButton(form) {
+        const btn = form.querySelector('#save-staff-btn');
+        if (btn.dataset.submitted === "true") {
+            event.preventDefault();
+            return false;
+        }
+
+        btn.dataset.submitted = "true";
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.innerText = 'Menyimpan...';
+    }
+
+    function disableToggleBtn(form) {
+        const btn = form.querySelector('.toggle-btn');
+        if (btn.dataset.submitted === "true") {
+            event.preventDefault();
+            return false;
+        }
+
+        btn.dataset.submitted = "true";
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+</script>

@@ -13,7 +13,7 @@
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
-            <form action="{{ route('transactions.store') }}" method="POST">
+            <form action="{{ route('transactions.store') }}" method="POST" onsubmit="disableSubmitButton(this)">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Date -->
@@ -113,12 +113,27 @@
                 <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
                     <a href="{{ route('cash.index') }}"
                         class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs rounded-lg transition">Cancel</a>
-                    <button type="submit"
+                    <button type="submit" id="saveBtn"
                         class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition">
                         Save
                     </button>
                 </div>
             </form>
+
+            <script>
+                function disableSubmitButton(form) {
+                    const btn = form.querySelector('#saveBtn');
+                    if (btn.dataset.submitted) {
+                        event.preventDefault();
+                        return false;
+                    }
+                    btn.dataset.submitted = "true";
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                    btn.innerText = 'Saving..';
+                }
+            </script>
+
         </div>
     </div>
 @endsection

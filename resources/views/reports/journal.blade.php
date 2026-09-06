@@ -13,13 +13,17 @@
                 class="flex flex-wrap items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">From Date</label>
-                    <input type="date" name="start_date" value="{{ request('start_date', date('Y-m-01')) }}"
-                        class="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <!-- 🟢 [MARK: FIX] Menggunakan $startDate dan update batas min untuk end_date -->
+                    <input type="date" id="start_date" name="start_date" value="{{ $startDate }}"
+                        onchange="document.getElementById('end_date').min = this.value"
+                        class="px-3 py-1.5 bg-slate-50 border @error('start_date') border-rose-500 @else border-slate-300 @enderror rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">To Date</label>
-                    <input type="date" name="end_date" value="{{ request('end_date', date('Y-m-t')) }}"
-                        class="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <!-- 🟢 [MARK: FIX] Atribut min diset berdasarkan $startDate -->
+                    <input type="date" id="end_date" name="end_date" value="{{ $endDate }}"
+                        min="{{ $startDate }}"
+                        class="px-3 py-1.5 bg-slate-50 border @error('end_date') border-rose-500 @else border-slate-300 @enderror rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div class="self-end">
                     <button type="submit"
@@ -29,6 +33,13 @@
                 </div>
             </form>
         </div>
+
+        <!-- 🟢 [MARK: FIX] Notifikasi Error Validasi Tanggal -->
+        @error('end_date')
+            <div class="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs font-semibold text-rose-600">
+                {{ $message }}
+            </div>
+        @enderror
 
         <!-- Table Journal -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -58,12 +69,12 @@
                                         </td>
                                     @endif
                                     <td class="py-2.5 px-4 font-mono text-slate-600">
-                                        {{ $detail->coa->code }}
+                                        {{ optional($detail->coa)->code ?? '-' }}
                                     </td>
                                     <td class="py-2.5 px-4">
                                         <span
                                             class="{{ $detail->credit > 0 ? 'pl-6 block text-slate-500' : 'font-medium text-slate-800' }}">
-                                            {{ $detail->coa->name }}
+                                            {{ optional($detail->coa)->name ?? 'Unknown Account' }}
                                         </span>
                                         @if ($index === count($transaction->details) - 1 && $transaction->description)
                                             <div class="text-xs text-slate-400 italic mt-0.5">Note:

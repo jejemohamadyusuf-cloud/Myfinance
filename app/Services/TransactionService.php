@@ -15,15 +15,26 @@ class TransactionService
 {
     use HasTransactionNumber;
 
-    public function getCashTransactions(int $perPage = 10, int $masterId = null): LengthAwarePaginator
+    private function resolveTenantId(?int $masterId = null): int
     {
-        $query = Transaction::whereIn('type', ['cash_in', 'cash_out', 'CASH_IN', 'CASH_OUT']);
-
-        if ($masterId) {
-            $query->where('owner_id', $masterId);
+        if($masterId) {
+            return $masterId;
         }
 
-        return $query
+        $user = auth()->user();
+        if (! $user) {
+            throw new Exception('User must be authenticated');
+        }
+
+        return $user->getTenantId() ?? $user->id;
+    }
+
+    public function getCashTransactions(int $perPage = 10, int $masterId = null): LengthAwarePaginator
+    {
+        $tenantId = $this->resolveTenantId($masterId);
+
+        return Transaction::where('tenant_id', $tenantId)
+            ->whereIn('type', ['cash_in', 'cash_out', 'CASH_IN', 'CASH_OUT'])
             ->orderBy('date', 'desc')
             ->orderBy('id', 'desc')
             ->paginate($perPage);
@@ -31,13 +42,10 @@ class TransactionService
 
     public function getBankTransactions(int $perPage = 10, int $masterId = null): LengthAwarePaginator
     {
-        $query = Transaction::whereIn('type', ['bank_in', 'bank_out', 'BANK_IN', 'BANK_OUT']);
-        
-        if ($masterId) {
-            $query->where('owner_id', $masterId);
-        }
-        
-        return $query
+        $tenantId = $this->resolveTenantId($masterId);
+
+        return Transaction::where('tenant_id', $tenantId)
+            ->whereIn('type', ['bank_in', 'bank_out', 'BANK_IN', 'BANK_OUT'])
             ->orderBy('date', 'desc')
             ->orderBy('id', 'desc')
             ->paginate($perPage);
@@ -45,24 +53,20 @@ class TransactionService
 
     public function getTransactionById(int $id, ?int $masterId = null): Transaction
     {
-        $query = Transaction::with('details.coa');
+        $tenantId = $this->resolveTenantId($masterId);
 
-        if ($masterId) {
-            $query->where('owner_id', $masterId);
-        }
-
-        return $query->findOrFail($id);
+        return Transaction::with('details.coa')
+            ->where('tenant_id', $tenantId)
+            ->findOrFail($id);
     }
 
     public function getCoaOptionsForTransaction(string $category, ?int $masterId = null): array
     {
-        $cashBankQuery = Coa::where('is_cash_bank', 1);
-        $opponentQuery = Coa::query();
+        $tenantId = $this->resolveTenantId($masterId);
 
-        if ($masterId) {
-            $cashBankQuery->where('owner_id', $masterId);
-            $opponentQuery->where('owner_id', $masterId);
-        }
+        $cashBankQuery = Coa::where('tenant_id', $tenantId)->where('is_cash_bank', 1);
+        
+        $opponentQuery = Coa::where('tenant_id', $tenantId);
 
         if ($category === 'bank') {
             $cashBankCoas = (clone $cashBankQuery)->where('name', 'LIKE', '%bank%')->orderBy('code')->get();
@@ -121,12 +125,14 @@ class TransactionService
     public function createTransaction(array $data, ?int $masterId = null): Transaction
     {
         return DB::transaction(function () use ($data, $masterId) {
+            $tenantId = $this->resolveTenantId($masterId);
             //generate nomor transaksi
             $transactionNumber = self::generateNumber($data['type'], $data['date']);
             
             //header
             $transaction = Transaction::create([
-                'owner_id' => $masterId ?? auth()->user()->owner_id ?? auth()->id(),
+                'tenant_id' => $tenantId,
+                'created_by' => auth()->id(),
                 'transaction_number' => $transactionNumber,
                 'status' => Transaction::STATUS_POSTED,
                 'type' => strtolower($data['type']),
@@ -241,6 +247,8 @@ class TransactionService
 
     public function getDailyTransactionTrends(?string $startDate = null, ?string $endDate = null, ?int $masterId = null): array
     {
+        $tenantId = $this->resolveTenantId($masterId);
+
         $start = $startDate ? Carbon::parse($startDate)->startOfDay() : Carbon::now()->subDays(6)->startOfDay();
         $end = $endDate ? Carbon::parse($endDate)->endOfDay() : Carbon::now()->endOfDay();
 
@@ -252,6 +260,7 @@ class TransactionService
         $internalTransferIds = DB::table('transaction_details')
                 ->join('coas', 'transaction_details.coa_id', '=', 'coas.id')
                 ->where('coas.is_cash_bank', 1)
+                ->where('coas.tenant_id', $tenantId)
                 ->select('transaction_id')
                 ->groupBy('transaction_id')
                 ->havingRaw('COUNT(DISTINCT coas.id) >= ?', [2])
@@ -259,16 +268,13 @@ class TransactionService
         //fetch income
         $incomesQuery = DB::table('transactions')
                 ->whereNull('deleted_at')
+                ->where('tenant_id', $tenantId)
                 ->whereIn('status', ['posted', 'POSTED'])
                 ->whereIn('type', ['cash_in', 'bank_in', 'CASH_IN', 'BANK_IN'])
                 ->whereBetween('date', [$startDateStr, $endDateStr]);
         
         if ($internalTransferIds->isNotEmpty()) {
             $incomesQuery->whereNotIn('id', $internalTransferIds);
-        }
-
-        if ($masterId) {
-            $incomesQuery->where('tenant_id', $masterId);
         }
 
         $rawIncomes = $incomesQuery->select('date', 'total_amount')->get();        
@@ -281,6 +287,7 @@ class TransactionService
         //fetch expense
         $expensesQuery = DB::table('transactions')
             ->whereNull('deleted_at')
+            ->where('tenant_id', $tenantId)
             ->whereIn('status', ['posted','POSTED'])
             ->whereIn('type', ['cash_out', 'bank_out', 'CASH_OUT', 'BANK_OUT'])
             ->whereBetween('date', [$startDateStr, $endDateStr]);

@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use App\Services\ReportService;
 use Illuminate\View\View;
 use App\Models\Coa;
-use App\Models\TransasctionDetail;
-use Illuminate\Http\JsonResponse;
 
 class ReportController extends Controller
 {
@@ -21,21 +19,27 @@ class ReportController extends Controller
 
     public function generalJournal(Request $request): View
     {
-        $startDate = $request->get('start_date', date('Y-m-01'));
-        $endDate = $request->get('end_date', date('Y-m-t'));
+        $startDate = $request->input('start_date') ?: date('Y-m-d');
+        $endDate = $request->input('end_date') ?: date('Y-m-d');
         
         $journal = $this->reportService->getGeneralJournal($startDate, $endDate);
 
-        return view('reports.journal', compact('journal'));
+        return view('reports.journal', compact('journal', 'startDate', 'endDate'));
     }
 
     public function generalLedger(Request $request): View
     {
-        $coas = Coa::orderBy('code')->get();
+        $tenantId = auth()->user()->getTenantId() ?? auth()->id();
+        $coas = Coa::where('tenant_id', $tenantId)->orderBy('code')->get();
 
-        $startDate = $request->get('start_date', date('Y-m-01'));
-        $endDate = $request->get('end_date', date('Y-m-t'));
-
+        if ($request->has('start_date')) {
+            $startDate = $request->input('start_date') ?: date('Y-m-d');
+            $endDate = $request->input('end_date') ?: date('Y-m-d');
+        } else {
+            $startDate = date('Y-m-01');
+            $endDate = date('Y-m-t');
+        }
+        
         $ledger = null;
 
         if ($request->filled('coa_id')) {
@@ -52,6 +56,6 @@ class ReportController extends Controller
             );
         }
 
-        return view('reports.ledger', compact('coas', 'ledger'));
+        return view('reports.ledger', compact('coas', 'ledger', 'startDate', 'endDate'));
     }
 }

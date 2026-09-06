@@ -6,30 +6,56 @@ use App\Models\Coa;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use Illuminate\Database\Eloquent\Collection;
+use Carbon\Carbon;
+use Exception;
 
 class ReportService
 {
-    //ambil data laporan jurnal umum berdasarkan rentang tanggal
-    public function getGeneralJournal(string $startDate, string $endDate): Collection
+    private function resolveTenantId(?int $masterId = null):int
     {
+        if ($masterId) {
+            return $masterId;
+        }
+
+        $user = auth()->user();
+        if (! $user) {
+            throw new Exception('User must be authenticated');
+        }
+
+        return $user->getTenantId() ?? $user->id;
+    }
+
+    //ambil data laporan jurnal umum berdasarkan rentang tanggal
+    public function getGeneralJournal(?string $startDate = null, ?string $endDate = null, ?int $masterId = null): Collection
+    {
+        $tenantId = $this->resolveTenantId($masterId);
+
+        $startStr = $startDate ? Carbon::parse($startDate)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
+        $endStr = $endDate ? Carbon::parse($endDate)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
+
         return Transaction::with(['details.coa'])
+            ->where('tenant_id', $tenantId)
             ->whereRaw('LOWER(status) = ?', [Transaction::STATUS_POSTED])
-            ->whereBetween('date', [$startDate, $endDate])
+            ->whereBetween('date', [$startStr, $endStr])
             ->orderBy('date', 'asc')
             ->orderBy('id', 'asc')
             ->get();
     }
 
     //ambil data laporan buku besar per coa beserta saldo awal saldo akhir
-    public function getGeneralLedger(int $coaId, string $startDate, string $endDate): array
+    public function getGeneralLedger(int $coaId, ?string $startDate = null, ?string $endDate = null, ?int $masterId = null): array
     {   
+        $tenantId = $this->resolveTenantId($masterId);
+
+        $startStr = $startDate ? Carbon::parse($startDate)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
+        $endStr = $endDate ? Carbon::parse($endDate)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
         //mengitung saldo awal(mutasi sebelum $startDate)
-        $coa = Coa::findOrFail($coaId);
+        $coa = Coa::where('tenant_id', $tenantId)->findOrFail($coaId);
 
         $previousMutations = TransactionDetail::where('coa_id', $coaId)
-        ->whereHas('transaction', function ($query) use ($startDate) {
-            $query->where('status', 'posted')
-            ->where('date', '<', $startDate);
+        ->whereHas('transaction', function ($query) use ($startStr, $tenantId) {
+            $query->where('tenant_id', $tenantId)->where('status', 'posted')
+            ->where('date', '<', $startStr);
         })
         ->selectRaw('SUM(debit) as total_debit, SUM(credit) as total_credit')
         ->first();
@@ -44,9 +70,9 @@ class ReportService
         //ambil mutasi transaksi pada periode ini
         $details = TransactionDetail::with('transaction')
             ->where('coa_id', $coaId)
-            ->whereHas('transaction', function ($query) use ($startDate, $endDate) {
-                $query->where('status', 'posted')
-                    ->whereBetween('date', [$startDate, $endDate]);
+            ->whereHas('transaction', function ($query) use ($startStr, $endStr, $tenantId) {
+                $query->where('tenant_id', $tenantId)->where('status', 'posted')
+                    ->whereBetween('date', [$startStr, $endStr]);
             })
             ->get()
             ->sortBy([
@@ -70,17 +96,17 @@ class ReportService
             $mutations[] = [
                 'date'                  => $detail->transaction->date,
                 'transaction_number'    => $detail->transaction->transaction_number,
-                'description'    => $detail->transaction->description,
-                'debit'    => $detail->debit,
-                'credit'    => $detail->credit,
-                'balance'    => $runningBalance,
+                'description'           => $detail->transaction->description,
+                'debit'                 => $detail->debit,
+                'credit'                => $detail->credit,
+                'balance'               => $runningBalance,
             ];
         }
 
         return [
             'coa'           => $coa,
-            'start_date'    => $startDate,
-            'end_date'      => $endDate,
+            'start_date'    => $startStr,
+            'end_date'      => $endStr,
             'initial_balance'=> $initialBalance,
             'mutations'     => $mutations,
             'final_balance' => $runningBalance

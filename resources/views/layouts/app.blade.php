@@ -83,20 +83,22 @@
             @if (auth()->check() && (auth()->user()->isMaster() || auth()->user()->isSuperAdmin()))
                 <a href="{{ route('profile.edit') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition 
-    {{ request()->routeIs('profile.edit') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-                    <span>
-                        @if (auth()->check() && (auth()->user()->isMaster() || auth()->user()->isSuperAdmin()))
-                            Profile & Tim Staff
-                        @else
-                            Profile Settings
-                        @endif
-                    </span>
+                    {{ request()->routeIs('profile.edit') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                    <span>Profile & Tim Staff</span>
+                </a>
+            @else
+                <a href="{{ route('profile.edit') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition 
+                    {{ request()->routeIs('profile.edit') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                    <span>Profile Settings</span>
                 </a>
             @endif
 
-            <form method="POST" action="{{ route('logout') }}">
+            <!-- 🟢 [MARK: FIX 419] Logout Form dengan Pengaman Double Submit -->
+            <form method="POST" action="{{ route('logout') }}" id="sidebar-logout-form" class="pt-2">
                 @csrf
-                <button type="submit" class="text-sm text-rose-600 hover:text-rose-800 font-medium">
+                <button type="button" onclick="handleLogout(this, 'sidebar-logout-form')"
+                    class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-rose-500 hover:bg-slate-800 hover:text-rose-400 transition">
                     Logout ({{ auth()->user()->name }})
                 </button>
             </form>
@@ -125,7 +127,7 @@
                 Financial Management System
             </div>
             <div class="text-xs text-slate-400 font-mono">
-                Env: Local Development
+                Env: {{ app()->environment() }}
             </div>
         </header>
 
@@ -179,6 +181,22 @@
         </footer>
 
     </div>
+
+    <!-- 🟢 [MARK: FIX] Global Handler Pencegah Double Submit Logout -->
+    <script>
+        function handleLogout(element, formId) {
+            if (element.getAttribute('data-submitting') === 'true') {
+                return false;
+            }
+
+            element.setAttribute('data-submitting', 'true');
+            element.style.pointerEvents = 'none';
+            element.style.opacity = '0.5';
+            element.innerText = 'Logging out...';
+
+            document.getElementById(formId).submit();
+        }
+    </script>
 
 </body>
 

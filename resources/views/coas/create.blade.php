@@ -13,7 +13,8 @@
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
-            <form action="{{ route('coas.store') }}" method="POST">
+            <!-- 🟢 [MARK: FIX] Form submit dilindungi dengan pencegah double click -->
+            <form action="{{ route('coas.store') }}" method="POST" onsubmit="disableCoaSubmitButton(this)">
                 @csrf
                 <div class="space-y-5">
 
@@ -36,7 +37,7 @@
                                 Operasional)</option>
                         </select>
                         @error('type')
-                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                            <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -60,7 +61,7 @@
                             (Modal), <strong>41</strong> (Pendapatan), <strong>51</strong> (Beban).
                         </p>
                         @error('code')
-                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                            <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -73,7 +74,7 @@
                             placeholder="Contoh: Beban Listrik & Air" required
                             class="w-full px-4 py-2.5 bg-slate-50 border @error('name') border-rose-500 @else border-slate-300 @enderror rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         @error('name')
-                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                            <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -95,26 +96,39 @@
                 <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
                     <a href="{{ route('coas.index') }}"
                         class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs rounded-lg transition">Cancel</a>
-                    <button type="submit"
-                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition">Save
-                        Account</button>
+                    <button type="submit" id="saveCoaBtn"
+                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition">
+                        Save Account
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- JavaScript Logika Auto-Suggestion (Terakhir + 1 & Bebas Duplikat) -->
+    <!-- JavaScript Logika Auto-Suggestion & Double Submit Protection -->
     <script>
+        // 🟢 [MARK: FIX] Script Disable Button Submit
+        function disableCoaSubmitButton(form) {
+            const btn = form.querySelector('#saveCoaBtn');
+            if (btn.dataset.submitted === "true") {
+                event.preventDefault();
+                return false;
+            }
+
+            btn.dataset.submitted = "true";
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            btn.innerText = 'Saving Account...';
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const typeSelect = document.getElementById('type');
             const codeInput = document.getElementById('code');
             const badge = document.getElementById('codeBadge');
 
-            // Ambil daftar seluruh kode yang ada di sistem
             const existingCoas = @json($coas ?? []);
             const usedCodesSet = new Set(existingCoas.map(c => String(c.code).trim()));
 
-            // Map Awalan Berdasarkan Kategori
             const prefixes = {
                 'asset': '11',
                 'liability': '21',
@@ -127,7 +141,6 @@
                 const prefix = prefixes[type];
                 if (!prefix) return '';
 
-                // Filter semua kode integer yang berawalan sesuai prefix kategori
                 const categoryCodes = Array.from(usedCodesSet)
                     .filter(code => code.startsWith(prefix))
                     .map(code => parseInt(code, 10))
@@ -135,14 +148,12 @@
 
                 let nextSequence = 1;
 
-                // Jika sudah ada kode untuk kategori ini, cari angka terbesar
                 if (categoryCodes.length > 0) {
                     const maxCode = Math.max(...categoryCodes);
-                    const maxSeq = maxCode % 100; // Ambil 2 digit terakhir
+                    const maxSeq = maxCode % 100;
                     nextSequence = maxSeq + 1;
                 }
 
-                // Loop untuk MEMASTIKAN kode belum ada di database (Verifikasi Duplikasi)
                 let candidateCode = prefix + String(nextSequence).padStart(2, '0');
 
                 while (usedCodesSet.has(candidateCode)) {
@@ -153,20 +164,21 @@
                 return candidateCode;
             }
 
-            // Event ketika dropdown kategori berubah
             typeSelect.addEventListener('change', function() {
                 const type = this.value;
 
                 if (type && prefixes[type]) {
                     const suggestedCode = generateNextUniqueCode(type);
                     codeInput.value = suggestedCode;
+                    badge.textContent = '✓ Auto Sugesti Terverifikasi';
+                    badge.className =
+                        'text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200';
                     badge.classList.remove('hidden');
                 } else {
                     badge.classList.add('hidden');
                 }
             });
 
-            // Validasi Realtime saat pengguna mengetik manual
             codeInput.addEventListener('input', function() {
                 const inputVal = this.value.trim();
                 if (usedCodesSet.has(inputVal)) {
