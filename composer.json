@@ -59,6 +59,12 @@
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
+
+        "vercel-build":[
+            "php artisan config:cache",
+            "php artisan route:cache",
+            "php artisan view:cache"
+        ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
