@@ -63,7 +63,9 @@
         "vercel-build":[
             "php artisan config:cache",
             "php artisan route:cache",
-            "php artisan view:cache"
+            "php artisan view:cache",
+            "npm install",
+            "npm run build"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
