@@ -2,7 +2,7 @@
 
 $tmpStorage = '/tmp/storage';
 
-// [KOREKSI MULAI]: Pembuatan folder /tmp terintegrasi
+// 1. Pembuatan folder /tmp terintegrasi
 $tmpDirs = [
     "$tmpStorage/logs",
     "$tmpStorage/framework/views",
@@ -16,22 +16,23 @@ foreach ($tmpDirs as $dir) {
         @mkdir($dir, 0755, true);
     }
 }
-// [KOREKSI SELESAI]
 
-// [KOREKSI MULAI]: Suntik paksa SEMUA driver ke $_ENV dan $_SERVER 
-// agar env() Laravel tidak membaca string kosong dari Dashboard Vercel
+// [KOREKSI MULAI]: Kunci SEMUA driver inti agar kebal dari variabel kosong di Vercel
 $secureEnvs = [
-    'APP_SERVICES_CACHE' => "$tmpStorage/bootstrap/cache/services.php",
-    'APP_PACKAGES_CACHE' => "$tmpStorage/bootstrap/cache/packages.php",
-    'APP_CONFIG_CACHE'   => "$tmpStorage/bootstrap/cache/config.php",
-    'APP_ROUTES_CACHE'   => "$tmpStorage/bootstrap/cache/routes.php",
-    'APP_EVENTS_CACHE'   => "$tmpStorage/bootstrap/cache/events.php",
-    'LOG_CHANNEL'        => 'stderr',
-    'VIEW_COMPILED_PATH' => "$tmpStorage/framework/views",
-    'SESSION_DRIVER'     => 'cookie',
-    'CACHE_STORE'        => 'array',
-    'CACHE_DRIVER'       => 'array',
-    'QUEUE_CONNECTION'   => 'sync',
+    'APP_SERVICES_CACHE'     => "$tmpStorage/bootstrap/cache/services.php",
+    'APP_PACKAGES_CACHE'     => "$tmpStorage/bootstrap/cache/packages.php",
+    'APP_CONFIG_CACHE'       => "$tmpStorage/bootstrap/cache/config.php",
+    'APP_ROUTES_CACHE'       => "$tmpStorage/bootstrap/cache/routes.php",
+    'APP_EVENTS_CACHE'       => "$tmpStorage/bootstrap/cache/events.php",
+    
+    // Fix mutlak untuk error Maintenance Mode (ArgumentCountError)
+    'APP_MAINTENANCE_DRIVER' => 'file', 
+    'CACHE_STORE'            => 'array',
+    'CACHE_DRIVER'           => 'array',
+    'SESSION_DRIVER'         => 'cookie',
+    'LOG_CHANNEL'            => 'stderr',
+    'QUEUE_CONNECTION'       => 'sync',
+    'VIEW_COMPILED_PATH'     => "$tmpStorage/framework/views",
 ];
 
 foreach ($secureEnvs as $key => $value) {
@@ -53,7 +54,9 @@ try {
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
     
     $request = Illuminate\Http\Request::capture();
-    $request->headers->set('Accept', 'application/json'); 
+    
+    // Hapus sementara header Accept JSON jika ingin melihat tampilan web asli
+    // $request->headers->set('Accept', 'application/json'); 
     
     $response = $kernel->handle($request);
     $response->send();
