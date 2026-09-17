@@ -37,10 +37,14 @@ $app->useStoragePath('/tmp/storage');
 // 5. Jalankan Request (dengan penangkap error final)
 try {
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-    $response = $kernel->handle(
-        $request = Illuminate\Http\Request::capture()
-    );
+    
+    $request = Illuminate\Http\Request::capture();
+    // [TAMBAHAN BARU]: Paksa request sebagai API/JSON
+    $request->headers->set('Accept', 'application/json'); 
+    
+    $response = $kernel->handle($request);
     $response->send();
+    
     $kernel->terminate($request, $response);
 } catch (\Throwable $e) {
     echo "<h1>CRITICAL ERROR</h1>";
