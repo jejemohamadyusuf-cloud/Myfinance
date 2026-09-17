@@ -4,7 +4,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "php artisan config:clear && php artisan view:clear && vite build && mkdir -p dist && cp -r public/* dist/"
+        "build": "vite build && mkdir -p dist && cp -r public/* dist/"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.10",
