@@ -1,7 +1,8 @@
 <?php
 
-// [KOREKSI MULAI]: Hancurkan pengaruh SEMUA file cache Windows yang terbawa ke Vercel
 $tmpStorage = '/tmp/storage';
+
+// [KOREKSI MULAI]: Pembuatan folder /tmp terintegrasi
 $tmpDirs = [
     "$tmpStorage/logs",
     "$tmpStorage/framework/views",
@@ -15,26 +16,29 @@ foreach ($tmpDirs as $dir) {
         @mkdir($dir, 0755, true);
     }
 }
+// [KOREKSI SELESAI]
 
-// Override SEMUA jalur cache inti Laravel agar membaca dari /tmp yang bersih
-$caches = [
-    'APP_SERVICES_CACHE' => 'services.php',
-    'APP_PACKAGES_CACHE' => 'packages.php',
-    'APP_CONFIG_CACHE'   => 'config.php',
-    'APP_ROUTES_CACHE'   => 'routes.php',
-    'APP_EVENTS_CACHE'   => 'events.php',
+// [KOREKSI MULAI]: Suntik paksa SEMUA driver ke $_ENV dan $_SERVER 
+// agar env() Laravel tidak membaca string kosong dari Dashboard Vercel
+$secureEnvs = [
+    'APP_SERVICES_CACHE' => "$tmpStorage/bootstrap/cache/services.php",
+    'APP_PACKAGES_CACHE' => "$tmpStorage/bootstrap/cache/packages.php",
+    'APP_CONFIG_CACHE'   => "$tmpStorage/bootstrap/cache/config.php",
+    'APP_ROUTES_CACHE'   => "$tmpStorage/bootstrap/cache/routes.php",
+    'APP_EVENTS_CACHE'   => "$tmpStorage/bootstrap/cache/events.php",
+    'LOG_CHANNEL'        => 'stderr',
+    'VIEW_COMPILED_PATH' => "$tmpStorage/framework/views",
+    'SESSION_DRIVER'     => 'cookie',
+    'CACHE_STORE'        => 'array',
+    'CACHE_DRIVER'       => 'array',
+    'QUEUE_CONNECTION'   => 'sync',
 ];
 
-foreach ($caches as $envKey => $file) {
-    putenv("$envKey=$tmpStorage/bootstrap/cache/$file");
-    $_ENV[$envKey] = "$tmpStorage/bootstrap/cache/$file";
-    $_SERVER[$envKey] = "$tmpStorage/bootstrap/cache/$file";
+foreach ($secureEnvs as $key => $value) {
+    putenv("$key=$value");
+    $_ENV[$key] = $value;
+    $_SERVER[$key] = $value;
 }
-
-putenv('LOG_CHANNEL=stderr');
-putenv('VIEW_COMPILED_PATH=' . $tmpStorage . '/framework/views');
-putenv('SESSION_DRIVER=cookie');
-putenv('CACHE_STORE=array');
 // [KOREKSI SELESAI]
 
 // 3. Load aplikasi Laravel
@@ -59,5 +63,5 @@ try {
     echo "<h1>CRITICAL ERROR</h1>";
     echo "<p><b>Message:</b> " . htmlspecialchars($e->getMessage()) . "</p>";
     echo "<p><b>File:</b> " . $e->getFile() . " (Line " . $e->getLine() . ")</p>";
-    echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+    echo "<pre style='background:#f3f4f6; padding:10px;'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
 }
