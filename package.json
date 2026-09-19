@@ -4,7 +4,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build && mkdir -p dist && cp -r public/* dist/"
+        "build": "vite build"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.10",
