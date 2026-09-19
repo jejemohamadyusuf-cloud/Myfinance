@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "outputDirectory": "public",
   "builds": [
     {
       "src": "api/index.php",
@@ -9,13 +10,21 @@
   "routes": [
     {
       "src": "/build/(.*)",
-      "dest": "/build/$1"
+      "dest": "/public/build/$1"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/public/favicon.ico"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/public/robots.txt"
     },
     {
       "handle": "filesystem"
     },
     {
-      "src": "(.*)",
+      "src": "/(.*)",
       "dest": "/api/index.php"
     }
   ],
