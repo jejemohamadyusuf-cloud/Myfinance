@@ -22,11 +22,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || env('VERCEL')) {
             Vite::useBuildDirectory('build');
-
-            $vercelManifest = '/var/task/user/public/build/manifest.json';
-            if (file_exists($vercelManifest)) {
-                Vite::useManifestFileName($vercelManifest);
-            }
+            Vite::useManifestFilename('manifest.json');
         }
     }
 }
