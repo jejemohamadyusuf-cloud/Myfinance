@@ -1,35 +1,38 @@
 {
   "version": 2,
-  "outputDirectory": "public",
+
   "builds": [
     {
       "src": "api/index.php",
-      "use": "vercel-php@0.7.2",
-      "config": {
-        "includeFiles": [
-          "public/build/**",
-          "public/build/manifest.json"
-        ]
-      }
+      "use": "vercel-php@0.7.2"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
+
   "routes": [
     {
       "src": "/build/(.*)",
       "dest": "/public/build/$1"
     },
     {
+      "src": "/favicon.ico",
+      "dest": "/public/favicon.ico"
+    },
+    {
       "handle": "filesystem"
     },
     {
-      "src": "(.*)",
+      "src": "/(.*)",
       "dest": "/api/index.php"
     }
   ],
+
   "env": {
     "APP_URL": "https://myfinance-alpha-nine.vercel.app",
     "ASSET_URL": "https://myfinance-alpha-nine.vercel.app",
-    "APP_DEBUG": "true",
-    "VITE_MANIFEST_PATH": "public/build/manifest.json"
+    "APP_DEBUG": "true"
   }
 }
