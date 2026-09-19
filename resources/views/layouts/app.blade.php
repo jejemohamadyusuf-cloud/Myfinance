@@ -4,17 +4,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="noindex, nofollow">
     <title>{{ $title ?? 'MyFinance' }}</title>
 
-    <!-- 🟢 [MARK: OPTIMIZATION] Asset Bundling via Vite -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- CDN Tailwind Bawaan -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- 🟢 Font Loading Optimization dengan display=swap -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -100,7 +97,7 @@
                 </a>
             @endif
 
-            <!-- 🟢 Logout Form dengan Handler Double Submit (Memanggil Fungsi JS dari app.js) -->
+            <!-- Logout Form -->
             <form method="POST" action="{{ route('logout') }}" id="sidebar-logout-form" class="pt-2">
                 @csrf
                 <button type="button" onclick="handleLogout(this, 'sidebar-logout-form')"
@@ -112,7 +109,7 @@
 
         <!-- API Endpoint Badge Shortcut -->
         <div class="p-4 border-t border-slate-800">
-            <a href="{{ url('/api/v1/transactions') }}" target="_blank" rel="noopener noreferrer"
+            <a href="{{ url('/api/v1/transactions') }}" target="_blank"
                 class="w-full px-3 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700/60 transition flex items-center justify-between text-xs font-mono">
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -187,6 +184,22 @@
         </footer>
 
     </div>
+
+    <!-- Global Handler Logout -->
+    <script>
+        function handleLogout(element, formId) {
+            if (element.getAttribute('data-submitting') === 'true') {
+                return false;
+            }
+
+            element.setAttribute('data-submitting', 'true');
+            element.style.pointerEvents = 'none';
+            element.style.opacity = '0.5';
+            element.innerText = 'Logging out...';
+
+            document.getElementById(formId).submit();
+        }
+    </script>
 
 </body>
 
