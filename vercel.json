@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "outputDirectory": "public",
   "builds": [
     {
       "src": "api/index.php",
@@ -8,19 +7,21 @@
     }
   ],
   "routes": [
-    { "src": "/build/(.*)", "dest": "/build/$1" },
-    { "src": "/favicon.ico", "dest": "/favicon.ico" },
-    { "src": "/robots.txt", "dest": "/robots.txt" },
-    { "handle" : "filesystem" },
-    { "src": "/(.*)", "dest": "/api/index.php" }
+    {
+      "src": "/build/(.*)",
+      "dest": "/build/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "(.*)",
+      "dest": "/api/index.php"
+    }
   ],
   "env": {
-    "LOG_CHANNEL": "stderr",
-    "SESSION_DRIVER": "cookie",
-    "CACHE_STORE": "array",
-    "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
-    "APP_DEBUG": "true",
-    "APP_URL" : "https://myfinance-alpha-nine.vercel.app",
-    "ASSET_URL" : "https://myfinance-alpha-nine.vercel.app"
+    "APP_URL": "https://myfinance-alpha-nine.vercel.app",
+    "ASSET_URL": "https://myfinance-alpha-nine.vercel.app",
+    "APP_DEBUG": "true"
   }
 }
