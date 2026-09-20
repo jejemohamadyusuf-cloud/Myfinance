@@ -43,7 +43,6 @@
                         </x-dropdown-link>
 
                         <!-- Authentication -->
-                        <!-- 🟢 [MARK: FIX 419] Form Logout Desktop Aman CSRF -->
                         <form method="POST" action="{{ route('logout') }}" id="nav-desktop-logout-form">
                             @csrf
 
@@ -93,7 +92,6 @@
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
-                <!-- 🟢 [MARK: FIX 419] Form Logout Mobile Aman CSRF -->
                 <form method="POST" action="{{ route('logout') }}" id="nav-mobile-logout-form">
                     @csrf
 

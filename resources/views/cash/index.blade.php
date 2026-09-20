@@ -7,7 +7,7 @@
                 <h1 class="text-2xl font-bold text-slate-800">Cash Transactions</h1>
                 <p class="text-sm text-slate-500 mt-0.5">Manage physical cash transactions (Cash In & Cash Out)</p>
             </div>
-            <a href="{{ route('cash.create') }}"
+            <a href="{{ route('cash.in.create') }}"
                 class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition shadow-sm">
                 Insert
             </a>

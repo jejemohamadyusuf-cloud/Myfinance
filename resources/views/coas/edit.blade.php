@@ -58,16 +58,37 @@
                         @enderror
                     </div>
 
+                    <!-- Toggle Cash/Bank -->
                     <div class="pt-2">
                         <label class="inline-flex items-center cursor-pointer">
-                            <input type="checkbox" name="is_cash_bank" value="1"
+                            <input type="checkbox" id="is_cash_bank" name="is_cash_bank" value="1"
                                 {{ old('is_cash_bank', $coa->is_cash_bank ?? false) ? 'checked' : '' }}
-                                class="sr-only peer">
+                                class="sr-only peer" onchange="toggleSubCategoryContainer(this.checked)">
                             <div
                                 class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600">
                             </div>
                             <span class="ms-3 text-sm font-medium text-slate-700">Is Cash or Bank Account?</span>
                         </label>
+                    </div>
+
+                    <div id="sub_category_container"
+                        class="{{ old('is_cash_bank', $coa->is_cash_bank ?? false) ? '' : 'hidden' }}">
+                        <label for="sub_category" class="block text-xs font-bold text-slate-500 uppercase mb-2">
+                            Cash / Bank Type <span class="text-rose-500">*</span>
+                        </label>
+                        <select id="sub_category" name="sub_category"
+                            class="w-full px-4 py-2.5 bg-slate-50 border @error('sub_category') border-rose-500 @else border-slate-300 @enderror rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="" disabled
+                                {{ old('sub_category', $coa->sub_category) ? '' : 'selected' }}>-- Select Type --</option>
+                            <option value="cash"
+                                {{ old('sub_category', $coa->sub_category) === 'cash' ? 'selected' : '' }}>Cash (Kas)
+                            </option>
+                            <option value="bank"
+                                {{ old('sub_category', $coa->sub_category) === 'bank' ? 'selected' : '' }}>Bank</option>
+                        </select>
+                        @error('sub_category')
+                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
@@ -75,10 +96,23 @@
                     <a href="{{ route('coas.index') }}"
                         class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs rounded-lg transition">Cancel</a>
                     <button type="submit"
-                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition">Update
-                        Account</button>
+                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition">Update</button>
                 </div>
             </form>
         </div>
     </div>
+
+    <script>
+        function toggleSubCategoryContainer(isChecked) {
+            const container = document.getElementById('sub_category_container');
+            const select = document.getElementById('sub_category');
+
+            if (isChecked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                select.value = ''; // Reset pilihan jika toggle dimatikan
+            }
+        }
+    </script>
 @endsection

@@ -24,7 +24,7 @@ Route::middleware(['auth'])->group(function () {
 #transactions
     Route::prefix('transactions')->name('transactions.')->group(function () {
         Route::get('/', function () {
-            return redirect()->route('cash.index');
+            return redirect()->route('cash.in.index');
         });
         Route::post('/', [TransactionController::class, 'store'])->name('store');
         Route::get('/{id}', [TransactionController::class, 'show'])->name('show');
@@ -51,14 +51,26 @@ Route::middleware(['auth'])->group(function () {
 
 #cash transactions
     Route::prefix('cash')->name('cash.')->group(function () {
-        Route::get('/', [TransactionController::class, 'cashIndex'])->name('index');
-        Route::get('/create', [TransactionController::class, 'cashCreate'])->name('create');
+        Route::prefix('in')->name('in.')->group(function () {
+            Route::get('/', [TransactionController::class, 'cashInIndex'])->name('index');
+            Route::get('/create', [TransactionController::class, 'cashInCreate'])->name('create');
+        });
+        Route::prefix('out')->name('out.')->group(function () {
+            Route::get('/', [TransactionController::class, 'cashOutIndex'])->name('index');
+            Route::get('/create', [TransactionController::class, 'cashOutCreate'])->name('create');
+        });
     });
 
 #bank transactions
     Route::prefix('bank')->name('bank.')->group(function () {
-        Route::get('/', [TransactionController::class, 'bankIndex'])->name('index');
-        Route::get('/create', [TransactionController::class, 'bankCreate'])->name('create');
+        Route::prefix('in')->name('in.')->group(function () {
+            Route::get('/', [TransactionController::class, 'bankInIndex'])->name('index');
+            Route::get('/create', [TransactionController::class, 'bankInCreate'])->name('create');
+        });
+        Route::prefix('out')->name('out.')->group(function () {
+            Route::get('/', [TransactionController::class, 'bankOutIndex'])->name('index');
+            Route::get('/create', [TransactionController::class, 'bankOutCreate'])->name('create');
+        });       
     });
 
 #profiles

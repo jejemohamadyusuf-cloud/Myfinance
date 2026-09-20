@@ -63,18 +63,19 @@ class TransactionService
     public function getCoaOptionsForTransaction(string $category, ?int $masterId = null): array
     {
         $tenantId = $this->resolveTenantId($masterId);
+        $isBank = str_contains(strtolower($type), 'bank');
+        $targetCategory = $isBank ? 'bank' : 'cash';
 
-        $cashBankQuery = Coa::where('tenant_id', $tenantId)->where('is_cash_bank', 1);
+        $cashBankCoas = Coa::where('tenant_id', $tenantId)
+                           ->where('is_cash_bank', 1)
+                           ->where('sub_category', $targetCategory)
+                           ->orderBy('code')
+                           ->get();
         
-        $opponentQuery = Coa::where('tenant_id', $tenantId);
-
-        if ($category === 'bank') {
-            $cashBankCoas = (clone $cashBankQuery)->where('name', 'LIKE', '%bank%')->orderBy('code')->get();
-        } else {
-            $cashBankCoas = (clone $cashBankQuery)->where('name', 'NOT LIKE', '%bank%')->orderBy('code')->get();
-        }
-
-        $opponentCoas = $opponentQuery->orderBy('code')->get();
+        $opponentCoas = Coa::where('tenant_id', $tenantId)
+                           ->where('is_cash_bank', 0)
+                           ->orderBy('code')
+                           ->get();
 
         return compact('cashBankCoas', 'opponentCoas');
     }
@@ -328,5 +329,15 @@ class TransactionService
             'startDate' => $startDate,
             'endDate' => $endDate
         ];
+    }
+
+    public function getTransactionsByType(string $type, int $perPage = 10, ?int $masterId = null): LengthAwarePaginator
+    {
+        $tenantId = $this->resolveTenantId($masterId);
+
+        return Transaction::where('type', strtolower($type))
+                          ->orderBy('date', 'desc')
+                          ->orderBy('id', 'desc')
+                          ->paginate($perPage);
     }
 }

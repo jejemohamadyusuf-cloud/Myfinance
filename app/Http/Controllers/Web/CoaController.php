@@ -35,7 +35,13 @@ class CoaController extends Controller
 
     public function store(StoreCoaRequest $request): RedirectResponse
     {
-        $this->coaService->createCoa($request->validated());
+        $validated = $request->validated();
+
+        if (empty($validated['is_cash_bank'])) {
+            $validated['is_cash_bank'] = 0;
+            $validated['sub_category'] = null;
+        }
+        $this->coaService->createCoa($validated);
         // dd($request->all());
         return redirect()->route('coas.index')->with('success', 'COA Account created successfully');
         
@@ -50,7 +56,14 @@ class CoaController extends Controller
 
     public function update(UpdateCoaRequest $request, int $id): RedirectResponse
     {
-        $this->coaService->updateCoa($id, $request->validated());
+        $validated = $request->validated();
+
+        if (empty($validated['is_cash_bank'])) {
+            $validated['is_cash_bank'] = 0;
+            $validated['sub_category'] = null;
+        }
+
+        $this->coaService->updateCoa($id, $validated);
         
         return redirect()->route('coas.index')->with('success', 'COA Account updated successfully');
     }

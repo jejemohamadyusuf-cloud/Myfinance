@@ -18,48 +18,91 @@ class TransactionController extends Controller
         $this->transactionService = $transactionService;
     }
 
-    public function cashIndex(): View
+    public function cashInIndex(): View
     {
-        $transactions = $this->transactionService->getCashTransactions(10);
-        $category = 'cash';
+        $transactions = $this->transactionService->getTransactionsByType('cash_in', 10);
+        $type = 'cash_in';
+        $title = 'Cash In';
 
-        return view('cash.index', compact('transactions', 'category'));
+        return view('cash.index', compact('transactions', 'type', 'title'));
     }
 
-    public function cashCreate(): View
+    public function cashInCreate(): View
     {
-        $coas = $this->transactionService->getCoaOptionsForTransaction('cash');
+        $coas = $this->transactionService->getCoaOptionsForTransaction('cash_in');
         $cashBankCoas = $coas['cashBankCoas'];
         $opponentCoas = $coas['opponentCoas'];
-        $category = 'cash';
+        $type = 'cash_in';
+        $title = 'Tambah Cash In';
 
-        return view('cash.create', compact('cashBankCoas', 'opponentCoas', 'category'));
+        return view('cash.create', compact('cashBankCoas', 'opponentCoas', 'type', 'title'));
     }
 
-    public function bankIndex(): View
+    public function cashOutIndex(): View
     {
-        $transactions = $this->transactionService->getBankTransactions(10);
-        $category = 'bank';
+        $transactions = $this->transactionService->getTransactionsByType('cash_out', 10);
+        $type = 'cash_out';
+        $title = 'Cash Out';
+
+        return view('cash.index', compact('transactions', 'type', 'title'));
+    }
+
+    public function cashOutCreate(): View
+    {
+        $coas = $this->transactionService->getCoaOptionsForTransaction('cash_out');
+        $cashBankCoas = $coas['cashBankCoas'];
+        $opponentCoas = $coas['opponentCoas'];
+        $type = 'cash_out';
+        $title = 'Tambah Cash Out';
+
+        return view('cash.create', compact('cashBankCoas', 'opponentCoas', 'type', 'title'));
+    }
+
+    public function bankInIndex(): View
+    {
+        $transactions = $this->transactionService->getTransactionsByType('bank_in', 10);
+        $type = 'bank_in';
+        $title = 'Bank In';
         
-        return view('bank.index', compact('transactions', 'category'));
+        return view('bank.index', compact('transactions', 'type', 'title'));
     }
 
-    public function bankCreate(): View
+    public function bankInCreate(): View
     {
-        $coas = $this->transactionService->getCoaOptionsForTransaction('bank');
+        $coas = $this->transactionService->getCoaOptionsForTransaction('bank_in');
         $cashBankCoas = $coas['cashBankCoas'];
         $opponentCoas = $coas['opponentCoas'];
-        $category = 'bank';
+        $type = 'bank_in';
+        $title = 'Tambah Bank In';
 
-        return view('bank.create', compact('cashBankCoas', 'opponentCoas', 'category'));
+        return view('bank.create', compact('cashBankCoas', 'opponentCoas', 'type', 'title'));
+    }
+
+    public function bankOutIndex(): View
+    {
+        $transactions = $this->transactionService->getTransactionsByType('bank_out', 10);
+        $type = 'bank_out';
+        $title = 'Bank Out';
+        
+        return view('bank.index', compact('transactions', 'type', 'title'));
+    }
+
+    public function bankOutCreate(): View
+    {
+        $coas = $this->transactionService->getCoaOptionsForTransaction('bank_out');
+        $cashBankCoas = $coas['cashBankCoas'];
+        $opponentCoas = $coas['opponentCoas'];
+        $type = 'bank_out';
+        $title = 'Tambah Bank Out';
+
+        return view('bank.create', compact('cashBankCoas', 'opponentCoas', 'type', 'title'));
     }
 
     public function store(StoreTransactionRequest $request): RedirectResponse
     {
         $transaction = $this->transactionService->createTransaction($request->validated());
 
-        $isBank = in_array(strtolower($transaction->type), ['bank_in', 'bank_out']);
-        $route = $isBank ? 'bank.index' : 'cash.index';
+        $route = $this->resolveRedirectRoute($transaction->type);
 
         return redirect()->route($route)->with('success', 'Transaction created successfully.');
     }
@@ -67,8 +110,7 @@ class TransactionController extends Controller
     public function show(int $id): View
     {
         $transactions = $this->transactionService->getTransactionById($id);
-        $isBank = in_array(strtolower($transactions->type), ['bank_in', 'bank_out']);
-        $route = $isBank ? 'bank.index' : 'cash.index';
+        $route = $this->resolveRedirectRoute($transaction->type);
 
         return view('transactions.view', compact('transactions', 'route'));
     }
@@ -82,55 +124,6 @@ class TransactionController extends Controller
         }
 
         return view('transactions.edit', $formData);
-
-        // $type = strtolower($transaction->type);
-        // $isBank = in_array(strtolower($transaction->type), ['bank_in', 'bank_out']);
-
-        // $category = $isBank ? 'bank' : 'cash';
-
-        // if ($isBank) {
-        //     $cashBankCoas = Coa::where('is_cash_bank', 1)->where('name', 'LIKE', '%bank%')->orderBy('code')->get();
-        // } else {
-        //     $cashBankCoas = Coa::where('is_cash_bank', 1)->where('name', 'NOT LIKE', '%bank%')->orderBy('code')->get();
-        // }
-        
-        // $opponentCoas = Coa::orderBy('code')->get();
-
-        // $cashBankCoaId = null;
-        // $opponentCoaId = null;
-
-        // foreach ($transaction->details as $detail) {
-        //     if ($detail->coa && (int) $detail->coa->is_cash_bank === 1) {
-        //         $cashBankCoaId = $detail->coa_id;
-        //     } else {
-        //         $opponentCoaId = $detail->coa_id;
-        //     }
-        // }
-
-        // if (!$cashBankCoaId || $opponentCoaId) {
-        //     $details = $transaction->details->values();
-        //     if ($details->count() >= 2) {
-        //         if (in_array($type, ['cash_in', 'bank_in'])) {
-        //             $cashBankCoaId = optional($details->firstWhere('debit', '>', 0))->coa_id;
-        //             $opponentCoaId = optional($details->firstWhere('credit', '>', 0))->coa_id;
-        //         } else {
-        //             $cashBankCoaId = optional($details->firstWhere('credit', '>', 0))->coa_id;
-        //             $opponentCoaId = optional($details->firstWhere('debit', '>', 0))->coa_id;
-        //         }
-        //     }
-        // }
-
-        // $amount = $transaction->total_amount;
-    
-        // return view('transactions.edit', compact(
-        //      'transaction',
-        //      'cashBankCoas',
-        //      'opponentCoas',
-        //      'cashBankCoaId',
-        //      'opponentCoaId',
-        //      'amount' ,
-        //      'category'
-        //     ));
     }
 
     public function update(updateTransactionRequest $request, int $id): RedirectResponse
@@ -141,8 +134,7 @@ class TransactionController extends Controller
             return redirect()->back()->with('error', 'The transaction was voided and cannot be updated');
         }
         
-        $isBank = in_array(strtolower($transaction->type), ['bank_in', 'bank_out']);
-        $route = $isBank ? 'bank.index' : 'cash.index';
+        $route = $this->resolveRedirectRoute($transaction->type);
 
         return redirect()->route($route)
         ->with('success', 'Transaction updated sucessfully!');
@@ -151,10 +143,19 @@ class TransactionController extends Controller
     public function void(int $id): RedirectResponse
     {
         $transaction = $this->transactionService->voidTransaction($id);
-
-        $isBank = in_array(strtolower($transaction->type), ['bank_in', 'bank_out']);
-        $route = $isBank ? 'bank.index' : 'cash.index';
+        $route = $this->resolveRedirectRoute($transaction->type);
 
         return redirect()->route($route)->with('success', 'Transaction '. $transaction->transaction_number . 'has been Voided');
+    }
+
+    private function resolveRedirectRoute(string $type):string
+    {
+        return match (strtolower($type)) {
+            'cash_in' => 'cash.in.index',
+            'cash_out' => 'cash.out.index',
+            'bank_in' => 'bank.in.index',
+            'bank_out' => 'bank.out.index',
+            default => 'cash.in.index'
+        };
     }
 }

@@ -7,7 +7,7 @@
                 <h1 class="text-2xl font-bold text-slate-800">Bank Transactions</h1>
                 <p class="text-sm text-slate-500 mt-0.5">Manage bank account mutations (Bank In & Bank Out)</p>
             </div>
-            <a href="{{ route('bank.create') }}"
+            <a href="{{ route('bank.in.create') }}"
                 class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition shadow-sm">
                 Insert
             </a>

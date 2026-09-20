@@ -13,7 +13,7 @@ class Coa extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-    protected $fillable = ['tenant_id', 'code', 'name', 'type', 'is_cash_bank', 'parent_id'];
+    protected $fillable = ['tenant_id', 'code', 'name', 'type', 'is_cash_bank', 'parent_id', 'sub_category'];
     protected $casts = [
         'is_cash_bank' => 'boolean'
     ];

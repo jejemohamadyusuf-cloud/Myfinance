@@ -29,7 +29,8 @@ class UpdateCoaRequest extends FormRequest
             ],
             'name'         => 'required|string|max:255',
             'type'         => 'required|in:asset,liability,equity,revenue,expense',
-            'is_cash_bank' => 'nullable|boolean'
+            'is_cash_bank' => 'nullable|boolean',
+            'sub_category' => 'required_if:is_cash_bank,1|nullable|in:cash,bank',
         ];
     }
 }

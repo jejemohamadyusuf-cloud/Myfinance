@@ -47,17 +47,36 @@
                 <span>Master COA</span>
             </a>
 
-            <!-- Cash/Bank Menu -->
-            <a href="{{ route('cash.index') }}"
+            <div class="pt-6 px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                Cash Management
+            </div>
+
+            <a href="{{ route('cash.in.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition 
                 {{ request()->routeIs('cash.*') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-                <span>Cash</span>
+                <span>Cash In</span>
             </a>
 
-            <a href="{{ route('bank.index') }}"
+            <a href="{{ route('cash.out.index') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition 
+                {{ request()->routeIs('cash.out.*') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                <span>Cash Out</span>
+            </a>
+
+            <div class="pt-4 px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                Bank Management
+            </div>
+
+            <a href="{{ route('bank.in.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition 
                 {{ request()->routeIs('bank.*') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-                <span>Bank</span>
+                <span>Bank In</span>
+            </a>
+
+            <a href="{{ route('bank.out.index') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition 
+                {{ request()->routeIs('bank.out.*') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                <span>Bank Out</span>
             </a>
 
             <!-- Financial Reports Section -->
