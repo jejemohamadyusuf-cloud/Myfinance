@@ -64,8 +64,7 @@ class CoaService
         if (!$coa) {
             throw new \Exception('COA not found.');
         }
-
-        // Gunakan Query Builder dengan kurung () agar efisien dan pasti
+        
         if ($coa->transactionDetails()->exists()) {
             throw new \Exception('Cannot delete COA because it has recorded transaction.');
         }
@@ -81,25 +80,18 @@ class CoaService
     {
         $cashCoaIds = Coa::where('tenant_id', $this->getTenantId())
             ->where('is_cash_bank', 1)
-            ->where(function ($query) {
-                $query->where('name', 'LIKE' , '%kas%')
-                      ->orWhere('name', 'LIKE', '%cash%')
-                      ->orWhere('name', 'NOT LIKE', '%bank%');
-            })->pluck('id');
+            ->where('sub_category', cash)
+            ->pluck('id');
         
             return $this->getCalculateBalanceByCoaIds($cashCoaIds);
     }
 
     public function getBankBalance(): float
     {
-        $cashCoaIds = Coa::where('tenant_id', $this->getTenantId())
+        $bankCoaIds = Coa::where('tenant_id', $this->getTenantId())
             ->where('is_cash_bank', 1)
-            ->where(function ($query) {
-                $query->where('name', 'LIKE', '%kas%')
-                      ->orWhere('name', 'LIKE', '%cash%');
-            })->pluck('id');
-
-        $bankCoaIds = Coa::where('tenant_id', $this->getTenantId())->where('is_cash_bank', 1)->whereNotIn('id', $cashCoaIds)->pluck('id');
+            ->where('sub_category', 'bank')
+            ->pluck('id');
         
         return $this->getCalculateBalanceByCoaIds($bankCoaIds);
     }

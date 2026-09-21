@@ -53,7 +53,7 @@
 
             <a href="{{ route('cash.in.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition 
-                {{ request()->routeIs('cash.*') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                {{ request()->routeIs('cash.in.*') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                 <span>Cash In</span>
             </a>
 
@@ -69,7 +69,7 @@
 
             <a href="{{ route('bank.in.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition 
-                {{ request()->routeIs('bank.*') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                {{ request()->routeIs('bank.in.*') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                 <span>Bank In</span>
             </a>
 
@@ -78,7 +78,6 @@
                 {{ request()->routeIs('bank.out.*') ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                 <span>Bank Out</span>
             </a>
-
             <!-- Financial Reports Section -->
             <div class="pt-6 px-3 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                 Financial Reports
