@@ -60,7 +60,7 @@ class TransactionService
             ->findOrFail($id);
     }
 
-    public function getCoaOptionsForTransaction(string $category, ?int $masterId = null): array
+    public function getCoaOptionsForTransaction(string $type, ?int $masterId = null): array
     {
         $tenantId = $this->resolveTenantId($masterId);
         $isBank = str_contains(strtolower($type), 'bank');
