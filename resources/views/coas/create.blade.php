@@ -99,7 +99,7 @@
                             class="w-full px-4 py-2.5 bg-slate-50 border @error('sub_category') border-rose-500 @else border-slate-300 @enderror rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="" disabled {{ old('sub_category') ? '' : 'selected' }}>-- Select Type --
                             </option>
-                            <option value="cash" {{ old('sub_category') === 'cash' ? 'selected' : '' }}>Cash (Kas)
+                            <option value="cash" {{ old('sub_category') === 'cash' ? 'selected' : '' }}>Cash
                             </option>
                             <option value="bank" {{ old('sub_category') === 'bank' ? 'selected' : '' }}>Bank</option>
                         </select>
