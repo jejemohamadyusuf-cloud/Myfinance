@@ -80,7 +80,7 @@ class CoaService
     {
         $cashCoaIds = Coa::where('tenant_id', $this->getTenantId())
             ->where('is_cash_bank', 1)
-            ->where('sub_category', cash)
+            ->where('sub_category', 'cash')
             ->pluck('id');
         
             return $this->getCalculateBalanceByCoaIds($cashCoaIds);
