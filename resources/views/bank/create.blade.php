@@ -7,7 +7,7 @@
                 <h1 class="text-2xl font-bold text-slate-800">Create Bank Transaction</h1>
                 <p class="text-sm text-slate-500 mt-0.5">Record new bank transfer in or out transaction</p>
             </div>
-            <a href="{{ route('bank.index') }}"
+            <a href="{{ route('bank.in.index') }}"
                 class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition shadow-sm">&larr;
                 Back to List</a>
         </div>
