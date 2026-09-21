@@ -7,7 +7,7 @@
                 <h1 class="text-2xl font-bold text-slate-800">Create Cash Transaction</h1>
                 <p class="text-sm text-slate-500 mt-0.5">Record new cash in or cash out transaction</p>
             </div>
-            <a href="{{ route('cash.index') }}"
+            <a href="{{ route('cash.in.index') }}"
                 class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition shadow-sm">&larr;
                 Back to List</a>
         </div>
@@ -111,7 +111,7 @@
                 </div>
 
                 <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
-                    <a href="{{ route('cash.index') }}"
+                    <a href="{{ route('cash.in.index') }}"
                         class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs rounded-lg transition">Cancel</a>
                     <button type="submit" id="saveBtn"
                         class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition">

@@ -8,7 +8,7 @@
                 <h1 class="text-2xl font-bold text-slate-800">Edit Transaction</h1>
                 <p class="text-sm text-slate-500 mt-0.5">Update financial transaction record details</p>
             </div>
-            <a href="{{ $category === 'bank' ? route('bank.index') : route('cash.index') }}"
+            <a href="{{ $category === 'bank' ? route('bank.in.index') : route('cash.in.index') }}"
                 class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition shadow-sm">
                 &larr; Back to List
             </a>
@@ -143,7 +143,7 @@
 
                 <!-- Submit & Cancel Buttons -->
                 <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
-                    <a href="{{ $category === 'bank' ? route('bank.index') : route('cash.index') }}"
+                    <a href="{{ $category === 'bank' ? route('bank.in.index') : route('cash.in.index') }}"
                         class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs rounded-lg transition">
                         Cancel
                     </a>
