@@ -25,18 +25,22 @@ class DashboardController extends Controller
         $user = auth()->user();
         $masterId = $user->isMaster() ? $user->id : $user->owner_id;
 
-        $cashBalance = $this->coaService->getCashBalance($masterId);
-        $bankBalance = $this->coaService->getBankBalance($masterId);
-        $expenseBalance = $this->coaService->getExpenseBalance('this_month');
-        $expenseBalanceAllTime = $this->coaService->getExpenseBalance('all_time');
-        $totalBalance = $cashBalance + $bankBalance;
-
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $trends = $this->transactionService->getDailyTransactionTrends($startDate, $endDate, $masterId);
+        $cacheKey = "dashboard_data{$masterId}_" . ($startDate ?? 'default') . '_' . ($endDate ?? 'default');
 
-        return view('dashboard', compact('cashBalance', 'bankBalance', 'totalBalance', 'trends', 'expenseBalance'));
+        $data = Cache::remember($cacheKey, 60, function () use ($masterId, $startDate, $endDate) {
+            $cashBalance = $this->coaService->getCashBalance($masterId);
+            $bankBalance = $this->coaService->getBankBalance($masterId);
+            $expenseBalance = $this->coaService->getExpenseBalance('this_month');
+            $expenseBalanceAllTime = $this->coaService->getExpenseBalance('all_time');
+            $totalBalance = $cashBalance + $bankBalance;
+            $trends = $this->transactionService->getDailyTransactionTrends($startDate, $endDate, $masterId);
+        });
+
+        return compact('cashBalance', 'bankBalance', 'totalBalance', 'trends', 'expenseBalance');
+        return view('dashboard', $data);
     }
 
 
