@@ -35,12 +35,13 @@ class DashboardController extends Controller
             $cashBalance = $this->coaService->getCashBalance($masterId);
             $bankBalance = $this->coaService->getBankBalance($masterId);
             $expenseBalance = $this->coaService->getExpenseBalance('this_month');
-            $expenseBalanceAllTime = $this->coaService->getExpenseBalance('all_time');
+            $expenseBalanceAllTime = $this->coaService->getExpenseBalance('this_month');
             $totalBalance = $cashBalance + $bankBalance;
             $trends = $this->transactionService->getDailyTransactionTrends($startDate, $endDate, $masterId);
+            
+            return compact('cashBalance', 'bankBalance', 'totalBalance', 'trends', 'expenseBalance');
         });
 
-        return compact('cashBalance', 'bankBalance', 'totalBalance', 'trends', 'expenseBalance');
         return view('dashboard', $data);
     }
 
