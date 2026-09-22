@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
 
-    <!-- 🟢 KUNCI UTAMA: Panggil CDN di sini agar seluruh komponen <x-guest-layout> ter-load otomatis -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -28,13 +28,14 @@
 
     <div class="min-h-screen grid grid-cols-1 lg:grid-cols-12">
 
-        <!-- LEFT PANEL: Warm Beige Section (#F2EFE9) -->
+        <!-- PANEL KIRI: Warm Beige Section (#F2EFE9) -->
         <div
             class="hidden lg:flex lg:col-span-6 xl:col-span-7 bg-[#F2EFE9] border-r border-[#E2DDD5] p-12 flex-col justify-between relative overflow-hidden">
             <div
                 class="absolute inset-0 bg-[radial-gradient(#D5CFC4_1px,transparent_1px)] [background-size:24px_24px] opacity-40">
             </div>
 
+            <!-- Brand Header -->
             <div class="relative z-10 flex items-center gap-3">
                 <div
                     class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-white text-base shadow-md shadow-indigo-600/20">
@@ -43,6 +44,7 @@
                 <span class="text-2xl font-extrabold tracking-tight text-slate-900">MyFinance</span>
             </div>
 
+            <!-- Hero Feature -->
             <div class="relative z-10 max-w-xl my-auto py-12">
                 <div
                     class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold mb-6">
@@ -60,6 +62,7 @@
                     realtime yang dirancang profesional.
                 </p>
 
+                <!-- Mini Stat Badges -->
                 <div class="grid grid-cols-3 gap-4 border-t border-[#E2DDD5] pt-6">
                     <div>
                         <div class="text-xl font-bold text-slate-900 font-mono">100%</div>
@@ -79,6 +82,7 @@
                 </div>
             </div>
 
+            <!-- Footer -->
             <div
                 class="relative z-10 text-xs text-slate-600 font-semibold flex items-center justify-between border-t border-[#E2DDD5] pt-4">
                 <span>&copy; {{ date('Y') }} MyFinance System.</span>
@@ -86,7 +90,7 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL: Pure White Section (#FFFFFF) - Slot Form Register / Login -->
+        <!-- PANEL KANAN: Tempat Menampung Isi Form (Login/Register) via $slot -->
         <div class="lg:col-span-6 xl:col-span-5 flex items-center justify-center p-6 sm:p-12 bg-white relative">
             <div class="w-full max-w-md">
                 {{ $slot }}
