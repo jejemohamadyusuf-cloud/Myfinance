@@ -33,7 +33,7 @@ class TransactionController extends Controller
         $opponentCoas = $coas['opponentCoas'];
         $type = 'cash_in';
 
-        return view('cash.create', compact('cashBankCoas', 'opponentCoas', 'type'));
+        return view('transactions.create', compact('cashBankCoas', 'opponentCoas', 'type'));
     }
 
     public function cashOutIndex(): View
@@ -59,7 +59,7 @@ class TransactionController extends Controller
         $transactions = $this->transactionService->getTransactionByType('bank_in', 10);
         $type = 'bank_in';
         
-        return view('bank.index', compact('transactions', 'type'));
+        return view('transactions.index', compact('transactions', 'type'));
     }
 
     public function bankInCreate(): View
@@ -69,7 +69,7 @@ class TransactionController extends Controller
         $opponentCoas = $coas['opponentCoas'];
         $type = 'bank_in';
 
-        return view('bank.create', compact('cashBankCoas', 'opponentCoas', 'type'));
+        return view('transactions.create', compact('cashBankCoas', 'opponentCoas', 'type'));
     }
 
     public function bankOutIndex(): View
@@ -77,7 +77,7 @@ class TransactionController extends Controller
         $transactions = $this->transactionService->getTransactionByType('bank_out', 10);
         $type = 'bank_out';
         
-        return view('bank.index', compact('transactions', 'type'));
+        return view('transactions.index', compact('transactions', 'type'));
     }
 
     public function bankOutCreate(): View
@@ -87,7 +87,7 @@ class TransactionController extends Controller
         $opponentCoas = $coas['opponentCoas'];
         $type = 'bank_out';
 
-        return view('bank.create', compact('cashBankCoas', 'opponentCoas', 'type'));
+        return view('transactions.create', compact('cashBankCoas', 'opponentCoas', 'type'));
     }
 
     public function store(StoreTransactionRequest $request): RedirectResponse
