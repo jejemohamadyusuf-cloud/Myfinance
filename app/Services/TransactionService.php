@@ -29,6 +29,17 @@ class TransactionService
         return $user->getTenantId() ?? $user->id;
     }
 
+    public function getTransactionByType(string $type, int $perPage = 10, ?int $masterId = null):LengthAwarePaginator
+    {
+        $tenantId = $this->resolveTenantId($masterId);
+
+        return Transaction::where('tenant_id', $tenantId)
+                          ->where('type', strtolower($type))
+                          ->orderBy('date', 'desc')
+                          ->orderBy('id', 'desc')
+                          ->paginate($perPage);
+    }
+
     public function getCashTransactions(int $perPage = 10, int $masterId = null): LengthAwarePaginator
     {
         $tenantId = $this->resolveTenantId($masterId);
@@ -329,15 +340,5 @@ class TransactionService
             'startDate' => $startDate,
             'endDate' => $endDate
         ];
-    }
-
-    public function getTransactionsByType(string $type, int $perPage = 10, ?int $masterId = null): LengthAwarePaginator
-    {
-        $tenantId = $this->resolveTenantId($masterId);
-
-        return Transaction::where('type', strtolower($type))
-                          ->orderBy('date', 'desc')
-                          ->orderBy('id', 'desc')
-                          ->paginate($perPage);
     }
 }

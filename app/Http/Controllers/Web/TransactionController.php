@@ -20,11 +20,10 @@ class TransactionController extends Controller
 
     public function cashInIndex(): View
     {
-        $transactions = $this->transactionService->getTransactionsByType('cash_in', 10);
+        $transactions = $this->transactionService->getTransactionByType('cash_in', 10);
         $type = 'cash_in';
-        $title = 'Cash In';
 
-        return view('cash.index', compact('transactions', 'type', 'title'));
+        return view('transactions.index', compact('transactions', 'type'));
     }
 
     public function cashInCreate(): View
@@ -33,18 +32,16 @@ class TransactionController extends Controller
         $cashBankCoas = $coas['cashBankCoas'];
         $opponentCoas = $coas['opponentCoas'];
         $type = 'cash_in';
-        $title = 'Tambah Cash In';
 
-        return view('cash.create', compact('cashBankCoas', 'opponentCoas', 'type', 'title'));
+        return view('cash.create', compact('cashBankCoas', 'opponentCoas', 'type'));
     }
 
     public function cashOutIndex(): View
     {
-        $transactions = $this->transactionService->getTransactionsByType('cash_out', 10);
+        $transactions = $this->transactionService->getTransactionByType('cash_out', 10);
         $type = 'cash_out';
-        $title = 'Cash Out';
 
-        return view('cash.index', compact('transactions', 'type', 'title'));
+        return view('transactions.index', compact('transactions', 'type'));
     }
 
     public function cashOutCreate(): View
@@ -53,18 +50,16 @@ class TransactionController extends Controller
         $cashBankCoas = $coas['cashBankCoas'];
         $opponentCoas = $coas['opponentCoas'];
         $type = 'cash_out';
-        $title = 'Tambah Cash Out';
 
-        return view('cash.create', compact('cashBankCoas', 'opponentCoas', 'type', 'title'));
+        return view('transactions.create', compact('cashBankCoas', 'opponentCoas', 'type'));
     }
 
     public function bankInIndex(): View
     {
-        $transactions = $this->transactionService->getTransactionsByType('bank_in', 10);
+        $transactions = $this->transactionService->getTransactionByType('bank_in', 10);
         $type = 'bank_in';
-        $title = 'Bank In';
         
-        return view('bank.index', compact('transactions', 'type', 'title'));
+        return view('bank.index', compact('transactions', 'type'));
     }
 
     public function bankInCreate(): View
@@ -73,18 +68,16 @@ class TransactionController extends Controller
         $cashBankCoas = $coas['cashBankCoas'];
         $opponentCoas = $coas['opponentCoas'];
         $type = 'bank_in';
-        $title = 'Tambah Bank In';
 
-        return view('bank.create', compact('cashBankCoas', 'opponentCoas', 'type', 'title'));
+        return view('bank.create', compact('cashBankCoas', 'opponentCoas', 'type'));
     }
 
     public function bankOutIndex(): View
     {
-        $transactions = $this->transactionService->getTransactionsByType('bank_out', 10);
+        $transactions = $this->transactionService->getTransactionByType('bank_out', 10);
         $type = 'bank_out';
-        $title = 'Bank Out';
         
-        return view('bank.index', compact('transactions', 'type', 'title'));
+        return view('bank.index', compact('transactions', 'type'));
     }
 
     public function bankOutCreate(): View
@@ -93,9 +86,8 @@ class TransactionController extends Controller
         $cashBankCoas = $coas['cashBankCoas'];
         $opponentCoas = $coas['opponentCoas'];
         $type = 'bank_out';
-        $title = 'Tambah Bank Out';
 
-        return view('bank.create', compact('cashBankCoas', 'opponentCoas', 'type', 'title'));
+        return view('bank.create', compact('cashBankCoas', 'opponentCoas', 'type'));
     }
 
     public function store(StoreTransactionRequest $request): RedirectResponse
@@ -109,8 +101,9 @@ class TransactionController extends Controller
 
     public function show(int $id): View
     {
-        $transactions = $this->transactionService->getTransactionById($id);
-        $route = $this->resolveRedirectRoute($transaction->type);
+        $transactions = $this->transactionService->getTransactionsById($id);
+        
+        $backRoute = route($this->resolveRedirectRoute($transaction->type));
 
         return view('transactions.view', compact('transactions', 'route'));
     }
