@@ -122,7 +122,7 @@ class TransactionController extends Controller
         
         $backRoute = route($this->resolveRedirectRoute($transaction->type));
 
-        return view('transactions.view', compact('transactions', 'backRoute'));
+        return view('transactions.view', compact('transaction', 'backRoute'));
     }
 
     public function edit(int $id): View|RedirectResponse
