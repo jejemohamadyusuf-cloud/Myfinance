@@ -98,7 +98,7 @@ class TransactionService
         $isBank = in_array($type, ['bank_in', 'bank_out']);
         $category = $isBank ? 'bank' : 'cash';
 
-        $coas = $this->getCoaOptionsForTransaction($category, $masterId);
+        $coas = $this->getCoaOptionsForTransaction($type, $masterId);
         $cashBankCoas = $coas['cashBankCoas'];
         $opponentCoas = $coas['opponentCoas'];
 
@@ -204,11 +204,11 @@ class TransactionService
     private function prepareJournalEntries(array $data): array
     {
         $amount = (float) $data['total_amount'];
-        $cashBankId = $data['cash_bank_coa_id'] ?? $data['cash_bank_id'] ?? null;
-        $opponentId = $data['opponent_coa_id'] ?? $data['opponent_id'] ?? null;
+        $cashBankId = $data['cash_bank_id'] ?? $data['cash_bank_coa_id'] ?? null;
+        $opponentId = $data['opponent_id'] ?? $data['opponent_coa_id'] ?? null;
         $type = strtolower($data['type']);
 
-        if ($cashBankId === null || $opponentId === null) {
+        if (empty($cashBankId) || empty($opponentId)) {
             throw new Exception('Akun kas/bank atau akun lawan tidak valid.');
         }
 
