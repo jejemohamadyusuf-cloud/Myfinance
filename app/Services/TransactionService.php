@@ -34,10 +34,10 @@ class TransactionService
         $tenantId = $this->resolveTenantId($masterId);
 
         return Transaction::where('tenant_id', $tenantId)
-                          ->where('type', strtolower($type))
-                          ->orderBy('date', 'desc')
-                          ->orderBy('id', 'desc')
-                          ->paginate($perPage);
+            ->where('type', strtolower($type))
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
     }
 
     public function getCashTransactions(int $perPage = 10, int $masterId = null): LengthAwarePaginator
@@ -78,15 +78,15 @@ class TransactionService
         $targetCategory = $isBank ? 'bank' : 'cash';
 
         $cashBankCoas = Coa::where('tenant_id', $tenantId)
-                           ->where('is_cash_bank', 1)
-                           ->where('sub_category', $targetCategory)
-                           ->orderBy('code')
-                           ->get();
+            ->where('is_cash_bank', 1)
+            ->where('sub_category', $targetCategory)
+            ->orderBy('code')
+            ->get();
         
         $opponentCoas = Coa::where('tenant_id', $tenantId)
-                           ->where('is_cash_bank', 0)
-                           ->orderBy('code')
-                           ->get();
+            ->where('is_cash_bank', 0)
+            ->orderBy('code')
+            ->get();
 
         return compact('cashBankCoas', 'opponentCoas');
     }
@@ -270,20 +270,20 @@ class TransactionService
         $daysCount = $start->diffInDays($end) + 1;
 
         $internalTransferIds = DB::table('transaction_details')
-                ->join('coas', 'transaction_details.coa_id', '=', 'coas.id')
-                ->where('coas.is_cash_bank', 1)
-                ->where('coas.tenant_id', $tenantId)
-                ->select('transaction_id')
-                ->groupBy('transaction_id')
-                ->havingRaw('COUNT(DISTINCT coas.id) >= ?', [2])
-                ->pluck('transaction_id');
+            ->join('coas', 'transaction_details.coa_id', '=', 'coas.id')
+            ->where('coas.is_cash_bank', 1)
+            ->where('coas.tenant_id', $tenantId)
+            ->select('transaction_id')
+            ->groupBy('transaction_id')
+            ->havingRaw('COUNT(DISTINCT coas.id) >= ?', [2])
+            ->pluck('transaction_id');
         //fetch income
         $incomesQuery = DB::table('transactions')
-                ->whereNull('deleted_at')
-                ->where('tenant_id', $tenantId)
-                ->whereIn('status', ['posted', 'POSTED'])
-                ->whereIn('type', ['cash_in', 'bank_in', 'CASH_IN', 'BANK_IN'])
-                ->whereBetween('date', [$startDateStr, $endDateStr]);
+            ->whereNull('deleted_at')
+            ->where('tenant_id', $tenantId)
+            ->whereIn('status', ['posted', 'POSTED'])
+            ->whereIn('type', ['cash_in', 'bank_in', 'CASH_IN', 'BANK_IN'])
+            ->whereBetween('date', [$startDateStr, $endDateStr]);
         
         if ($internalTransferIds->isNotEmpty()) {
             $incomesQuery->whereNotIn('id', $internalTransferIds);

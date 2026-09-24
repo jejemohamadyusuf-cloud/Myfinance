@@ -18,6 +18,7 @@
             </a>
         </div>
 
+        <!-- 🔴 ALERT ERROR VALIDASI GLOBAL (Akan muncul jika ada input yang salah) -->
         @if ($errors->any())
             <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold space-y-1 mb-6">
                 <p class="font-extrabold text-sm mb-1">Gagal Menyimpan Transaksi:</p>
@@ -30,7 +31,8 @@
         @endif
 
         <!-- Form Container -->
-        <form method="POST" action="{{ route('transactions.store') }}" onsubmit="disableTransactionSubmitButton(this)"
+        <form method="POST" action="{{ route('transactions.store') }}"
+            onsubmit="disableTransactionSubmitButton(this, event)"
             class="bg-white p-6 sm:p-8 rounded-2xl border border-[#E2DDD5] shadow-sm space-y-6">
             @csrf
 
@@ -92,6 +94,7 @@
                             Akun {{ str_contains(strtolower($type), 'bank') ? 'Bank' : 'Kas' }} <span
                                 class="text-rose-500">*</span>
                         </label>
+                        <!-- 🟢 MENGIRIM KEDUA ATRIBUT AGAR COMPATIBLE DENGAN VALIDATOR -->
                         <select name="cash_bank_id" required
                             class="w-full px-4 py-3 bg-white border @error('cash_bank_id') border-rose-500 @else border-[#E2DDD5] @enderror rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-indigo-600 transition">
                             <option value="" disabled {{ old('cash_bank_id') ? '' : 'selected' }}>-- Pilih Akun
@@ -147,28 +150,33 @@
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#E2DDD5]">
                 <a href="{{ route(str_replace('_', '.', $type) . '.index') }}"
                     class="px-5 py-2.5 border border-[#D5CFC4] bg-[#F2EFE9] hover:bg-[#E2DDD5] rounded-xl text-xs font-semibold text-slate-800 transition">
-                    Batal
+                    Cancel
                 </a>
                 <button type="submit" id="saveTransactionBtn"
                     class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/20 transition">
-                    Simpan Transaksi
+                    Save
                 </button>
             </div>
         </form>
     </div>
 
+    <!-- 🟢 FIX JAVASCRIPT: Menggunakan setTimeout agar submit form berjalan lancar -->
     <script>
-        function disableTransactionSubmitButton(form) {
+        function disableTransactionSubmitButton(form, e) {
             const btn = form.querySelector('#saveTransactionBtn');
             if (btn.dataset.submitted === "true") {
-                event.preventDefault();
+                e.preventDefault();
                 return false;
             }
 
             btn.dataset.submitted = "true";
-            btn.disabled = true;
-            btn.classList.add('opacity-60', 'cursor-not-allowed');
-            btn.innerText = 'Menyimpan...';
+
+            // Tunda disable button 50ms agar request POST sempat terkirim oleh browser
+            setTimeout(() => {
+                btn.disabled = true;
+                btn.classList.add('opacity-60', 'cursor-not-allowed');
+                btn.innerText = 'Menyimpan...';
+            }, 50);
         }
     </script>
 @endsection
