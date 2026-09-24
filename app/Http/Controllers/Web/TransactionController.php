@@ -102,7 +102,7 @@ class TransactionController extends Controller
 
             Cache::forget("balances_{$tenantId}");
 
-            $route = $this->resolvedRedirectRoute($transaction->type);
+            $route = $this->resolveRedirectRoute($transaction->type);
             return redirect()->route($route)->with('success', 'transaksi berhasil disimpan');
         } catch (\Throwable $e) {
             Log::error('Transaction Store Error :' . $e->getMessage() , [
@@ -118,7 +118,7 @@ class TransactionController extends Controller
 
     public function show(int $id): View
     {
-        $transactions = $this->transactionService->getTransactionById($id);
+        $transaction = $this->transactionService->getTransactionById($id);
         
         $backRoute = route($this->resolveRedirectRoute($transactions->type));
 
@@ -150,7 +150,7 @@ class TransactionController extends Controller
             $tenantId = $user->getTenantId() ?? $user->id;
             Cache::forget("balances_{$tenantId}");
 
-            $route = $this->resolvedRedirectRoute($transaction->type);
+            $route = $this->resolveRedirectRoute($transaction->type);
 
             return redirect()->route($route)->with('success', 'transaksi berhasil diperbaharui');
         } catch (\Throwable $e) {
