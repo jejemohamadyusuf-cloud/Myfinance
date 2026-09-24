@@ -87,17 +87,19 @@ class CoaService
     {
         $cashCoaIds = Coa::where('tenant_id', $this->getTenantId())
             ->where('is_cash_bank', 1)
-            ->where('sub_category', 'cash')
-            ->pluck('id');
-        
-            return $this->getCalculateBalanceByCoaIds($cashCoaIds);
+            ->where(function ($q) {
+                $q->whereRaw("LOWER(sub_category) = 'cash'")
+                ->orWhereNull('sub_category');
+            })->pluck('id');
+    
+        return $this->getCalculateBalanceByCoaIds($cashCoaIds);
     }
 
     public function getBankBalance(): float
     {
         $bankCoaIds = Coa::where('tenant_id', $this->getTenantId())
             ->where('is_cash_bank', 1)
-            ->where('sub_category', 'bank')
+            ->whereRaw("LOWER(sub_category) = 'bank'")
             ->pluck('id');
         
         return $this->getCalculateBalanceByCoaIds($bankCoaIds);
