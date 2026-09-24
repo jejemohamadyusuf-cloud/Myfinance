@@ -84,7 +84,6 @@ class TransactionService
             ->get();
         
         $opponentCoas = Coa::where('tenant_id', $tenantId)
-            ->where('is_cash_bank', 0)
             ->orderBy('code')
             ->get();
 

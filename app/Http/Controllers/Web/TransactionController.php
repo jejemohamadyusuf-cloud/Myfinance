@@ -93,21 +93,21 @@ class TransactionController extends Controller
     public function store(StoreTransactionRequest $request): RedirectResponse
     {
         try {
-        $transaction = $this->transactionService->createTransaction($request->validated());
-        
-        // Hapus cache saldo dashboard setelah ada transaksi baru
-        $tenantId = auth()->user()->isMaster() ? auth()->user()->id : auth()->user()->owner->id;
-        \Illuminate\Support\Facades\Cache::forget("balances_{$tenantId}");
+            $transaction = $this->transactionService->createTransaction($request->validated());
+            
+            // Hapus cache saldo dashboard setelah ada transaksi baru
+            $tenantId = auth()->user()->isMaster() ? auth()->user()->id : auth()->user()->owner->id;
+            \Illuminate\Support\Facades\Cache::forget("balances_{$tenantId}");
 
-        $route = $this->resolveRedirectRoute($transaction->type);
+            $route = $this->resolveRedirectRoute($transaction->type);
 
-        return redirect()->route($route)->with('success', 'Transaksi berhasil disimpan.');
-    } catch (\Throwable $e) {
-        // 🟢 Jika terjadi error di database / service, tampilkan pesan error aslinya ke layar
-        return redirect()->back()
-            ->withInput()
-            ->withErrors(['database_error' => $e->getMessage()]);
-    }
+            return redirect()->route($route)->with('success', 'Transaksi berhasil disimpan.');
+        } catch (\Throwable $e) {
+            // 🟢 Jika terjadi error di database / service, tampilkan pesan error aslinya ke layar
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['database_error' => $e->getMessage()]);
+        }
     }
 
     public function show(int $id): View
