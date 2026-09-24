@@ -137,7 +137,7 @@ class CoaService
 
             $totals = $query->selectRaw('
                 COALESCE(SUM(transaction_details.debit),0) as total_debit,
-                COALESCE(SUM(transaction_details.credit),0 as total_credit')->first();
+                COALESCE(SUM(transaction_details.credit),0) as total_credit')->first();
 
             return (float) (($totals->total_debit ?? 0) - ($totals->total_credit ?? 0));
         });  
