@@ -33,9 +33,14 @@ class TransactionService
     {
         $tenantId = $this->resolveTenantId($masterId);
 
-        return Transaction::where('tenant_id', $tenantId)
-            ->where('type', strtolower($type))
-            ->orderBy('date', 'desc')
+        $query = Transaction::where('tenant_id', $tenantId)
+            ->where('type', strtolower($type));
+        
+        if (!request()->boolean('show_void')) {
+            $query->whereRaw("LOWER(status) !='void'");
+        }
+
+        return $query->orderBy('date', 'desc')
             ->orderBy('id', 'desc')
             ->paginate($perPage);
     }
