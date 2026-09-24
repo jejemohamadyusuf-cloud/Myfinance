@@ -8,6 +8,8 @@ use App\Http\Requests\UpdateTransactionRequest;
 use App\Services\TransactionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class TransactionController extends Controller
 {
@@ -94,20 +96,24 @@ class TransactionController extends Controller
     {
         try {
             $transaction = $this->transactionService->createTransaction($request->validated());
-            
-            // Hapus cache saldo dashboard setelah ada transaksi baru
-            $tenantId = auth()->user()->isMaster() ? auth()->user()->id : auth()->user()->owner->id;
-            \Illuminate\Support\Facades\Cache::forget("balances_{$tenantId}");
 
-            $route = $this->resolveRedirectRoute($transaction->type);
+            $user = auth()->user();
+            $tenantId = $user->getTenantId() ?? $user->id;
 
-            return redirect()->route($route)->with('success', 'Transaksi berhasil disimpan.');
+            Cache::forget("balances_{$tenantId}");
+
+            $route = $this->resolvedRedirectRoute($transaction->type);
+            return redirect()->route($route)->with('success', 'transaksi berhasil disimpan');
         } catch (\Throwable $e) {
-            // 🟢 Jika terjadi error di database / service, tampilkan pesan error aslinya ke layar
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['database_error' => $e->getMessage()]);
+            Log::error('Transaction Store Error :' . $e->getMessage() , [
+                'user_id' => auth()->id(),
+                'payload' => $request->validated(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->withInput()->withErrors(['database_error' => 'Gagal menyimpan transaksi:' . (app()->isLocal() ? $e->getMessage() : 'Terjadi kesalahan sistem')]);
         }
+    
     }
 
     public function show(int $id): View
@@ -132,16 +138,31 @@ class TransactionController extends Controller
 
     public function update(updateTransactionRequest $request, int $id): RedirectResponse
     {
-        $transaction = $this->transactionService->updateTransaction($id, $request->validated());
+        try {
+            $transaction = $this->transactionService->updateTransaction($id, $request->validated());
 
-        if ($transaction->status === 'void') {
-            return redirect()->back()->with('error', 'The transaction was voided and cannot be updated');
+            if (strtolower($transaction->status) === 'void') {
+                return redirect()->back()->withInput()->with('error', 'Transaksi yang sudah di VOID tidak dapat diperbaharui');
+            }
+
+            $user = auth()->user();
+
+            $tenantId = $user->getTenantId() ?? $user->id;
+            Cache::forget("balances_{$tenantId}");
+
+            $route = $this->resolvedRedirectRoute($transaction->type);
+
+            return redirect()->route($route)->with('success', 'transaksi berhasil diperbaharui');
+        } catch (\Throwable $e) {
+            Log::error('Transaction Update Error: ' . $e->getMessage(), [
+                'transaction_id' => $id,
+                'user_id' => auth()->id(),
+                'payload' => $request->validated(),
+                'trace' => $e->getMessage
+            ]);
+
+            return redirect()->back()->withInput()->withError(['database_error' => 'Gagal memperbaharui transaksi: ' (app()->isLocal() ? $e->getMessage() : 'Terjadi kesalahan sistem')]);
         }
-        
-        $route = $this->resolveRedirectRoute($transaction->type);
-
-        return redirect()->route($route)
-        ->with('success', 'Transaction updated sucessfully!');
     }
 
     public function void(int $id): RedirectResponse
