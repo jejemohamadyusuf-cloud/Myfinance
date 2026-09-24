@@ -120,7 +120,7 @@ class TransactionController extends Controller
     {
         $transaction = $this->transactionService->getTransactionById($id);
         
-        $backRoute = route($this->resolveRedirectRoute($transactions->type));
+        $backRoute = route($this->resolveRedirectRoute($transaction->type));
 
         return view('transactions.view', compact('transactions', 'backRoute'));
     }
