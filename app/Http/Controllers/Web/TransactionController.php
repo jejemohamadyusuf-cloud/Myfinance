@@ -158,7 +158,7 @@ class TransactionController extends Controller
                 'transaction_id' => $id,
                 'user_id' => auth()->id(),
                 'payload' => $request->validated(),
-                'trace' => $e->getMessage
+                'trace' => $e->getTraceAsString()
             ]);
 
             return redirect()->back()->withInput()->withError(['database_error' => 'Gagal memperbaharui transaksi: ' (app()->isLocal() ? $e->getMessage() : 'Terjadi kesalahan sistem')]);
