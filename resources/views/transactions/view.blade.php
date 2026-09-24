@@ -11,7 +11,7 @@
             <div class="flex items-center gap-2">
                 <a href="{{ $backRoute ?? route(str_replace('_', '.', $transactions->type) . '.index') }}"
                     class="px-4 py-2.5 bg-[#F2EFE9] hover:bg-[#E2DDD5] text-slate-800 border border-[#D5CFC4] text-xs font-semibold rounded-xl transition shadow-sm">
-                    &larr; Kembali
+                    &larr; Back
                 </a>
                 @if (strtolower($transactions->status) !== 'void')
                     <a href="{{ route('transactions.edit', $transactions->id) }}"

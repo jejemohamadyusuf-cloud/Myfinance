@@ -8,9 +8,6 @@
                 <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
                     {{ strtoupper(str_replace('_', ' ', $type ?? 'cash_in')) }}
                 </h1>
-                <p class="text-xs font-semibold text-slate-500 mt-1">
-                    Kelola dan pantau seluruh catatan jurnal transaksi riil.
-                </p>
             </div>
 
             <a href="{{ route(str_replace('_', '.', $type ?? 'cash_in') . '.create') }}"
@@ -18,7 +15,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                <span>Tambah {{ strtoupper(str_replace('_', ' ', $type ?? 'cash_in')) }}</span>
+                <span>Insert</span>
             </a>
         </div>
 

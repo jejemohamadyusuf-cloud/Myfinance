@@ -19,6 +19,15 @@ class UpdateTransactionRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+    
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'cash_bank_coa_id' => $this->cash_bank_coa_id ?? $this->cash_bank_id,
+            'opponent_coa_id' => $this->opponent_coa_id ?? $this->opponent_coa_id
+        ]);
+    }
+
     public function rules(): array
     {
         return [
@@ -34,9 +43,11 @@ class UpdateTransactionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'opponent_coa_id.different' => 'Opponent Coa can`t be the same',
-            'total_amount.gt' => 'value amount must be greater than 0',
-            'total_amount.required' => 'value amount must filled in'
+            'cash_bank_coa_id.required' => 'Akun Kas / Bank wajib dipilih.',
+            'opponent_coa_id.required'  => 'Akun Lawan wajib dipilih.',
+            'opponent_coa_id.different' => 'Akun Lawan tidak boleh sama dengan Akun Kas/Bank.',
+            'total_amount.gt'          => 'Nominal transaksi harus lebih dari 0.',
+            'total_amount.required'    => 'Nominal transaksi harus diisi.',
         ];
     }
 }

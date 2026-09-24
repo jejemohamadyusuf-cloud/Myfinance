@@ -19,6 +19,15 @@ class StoreTransactionRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'cash_bank_coa_id' => $this->cash_bank_coa_id ?? $this->cash_bank_id,
+            'opponent_coa_id' => $this->opponent_coa_id ?? $this->opponent_coa_id
+        ]);
+    }
+
     public function rules(): array
     {
         return [
@@ -34,9 +43,11 @@ class StoreTransactionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'opponent_id.different' => 'COA Lawan tidak boleh sama dengan Akun Kas/Bank.',
-            'total_amount.gt' => 'Nominal transaksi harus lebih dari 0.',
-            'total_amount.required' => 'Nominal transaksi harus diisi.',
+            'cash_bank_coa_id.required' => 'Akun Kas / Bank wajib dipilih.',
+            'opponent_coa_id.required'  => 'Akun Lawan wajib dipilih.',
+            'opponent_coa_id.different' => 'Akun Lawan tidak boleh sama dengan Akun Kas/Bank.',
+            'total_amount.gt'          => 'Nominal transaksi harus lebih dari 0.',
+            'total_amount.required'    => 'Nominal transaksi harus diisi.',
         ];
     }
 }
