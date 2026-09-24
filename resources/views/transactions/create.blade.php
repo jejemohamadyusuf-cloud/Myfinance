@@ -8,13 +8,10 @@
                 <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
                     Tambah {{ strtoupper(str_replace('_', ' ', $type)) }}
                 </h1>
-                <p class="text-xs font-semibold text-slate-500 mt-1">
-                    Lengkapi rincian di bawah untuk mencatat transaksi jurnal berpasangan otomatis.
-                </p>
             </div>
             <a href="{{ route(str_replace('_', '.', $type) . '.index') }}"
                 class="px-4 py-2.5 bg-[#F2EFE9] hover:bg-[#E2DDD5] text-slate-800 border border-[#D5CFC4] text-xs font-semibold rounded-xl transition shadow-sm">
-                &larr; Kembali
+                &larr; Back
             </a>
         </div>
 
@@ -31,8 +28,7 @@
         @endif
 
         <!-- Form Container -->
-        <form method="POST" action="{{ route('transactions.store') }}"
-            onsubmit="disableTransactionSubmitButton(this, event)"
+        <form method="POST" action="{{ route('transactions.store') }}" onsubmit="disableTransactionSubmitButton(this, event)"
             class="bg-white p-6 sm:p-8 rounded-2xl border border-[#E2DDD5] shadow-sm space-y-6">
             @csrf
 
@@ -55,15 +51,11 @@
                 <!-- Tipe Transaksi Terkunci -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        Tipe Transaksi (Terkunci)
+                        Tipe Transaksi
                     </label>
                     <div
                         class="w-full px-4 py-3 bg-[#FBF9F5] border border-[#E2DDD5] rounded-xl text-sm font-extrabold text-indigo-700 flex items-center justify-between">
                         <span>{{ strtoupper(str_replace('_', ' ', $type)) }}</span>
-                        <span
-                            class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-indigo-200">
-                            LOCKED BY MENU
-                        </span>
                     </div>
                 </div>
             </div>
@@ -102,7 +94,7 @@
                             @foreach ($cashBankCoas as $coa)
                                 <option value="{{ $coa->id }}"
                                     {{ old('cash_bank_id') == $coa->id ? 'selected' : '' }}>
-                                    [{{ $coa->code }}] {{ $coa->name }}
+                                    {{ $coa->name }}
                                 </option>
                             @endforeach
                         </select>
@@ -123,7 +115,7 @@
                             @foreach ($opponentCoas as $coa)
                                 <option value="{{ $coa->id }}"
                                     {{ old('opponent_id') == $coa->id ? 'selected' : '' }}>
-                                    [{{ $coa->code }}] {{ $coa->name }}
+                                    {{ $coa->name }}
                                     ({{ ucfirst($coa->category_type ?? ($coa->type ?? 'Lawan')) }})
                                 </option>
                             @endforeach

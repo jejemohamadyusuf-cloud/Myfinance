@@ -20,11 +20,16 @@ class UpdateTransactionRequest extends FormRequest
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     
-    public function prepareForValidation(): void
+    protected function prepareForValidation(): void
     {
+        $cashBankId = $this->cash_bank_id ?? $this->cash_bank_coa_id;
+        $opponentId = $this->opponent_id ?? $this->opponent_coa_id;
+
         $this->merge([
-            'cash_bank_coa_id' => $this->cash_bank_coa_id ?? $this->cash_bank_id,
-            'opponent_coa_id' => $this->opponent_coa_id ?? $this->opponent_coa_id
+            'cash_bank_id' => $cashBankId,
+            'cash_bank_coa_id' => $cashBankId,
+            'opponent_id' => $cashBankId,
+            'opponent_coa_id' => $cashBankId,
         ]);
     }
 

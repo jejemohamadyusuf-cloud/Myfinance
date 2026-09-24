@@ -6,8 +6,6 @@
         <div class="flex items-center justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Edit Transaksi</h1>
-                <p class="text-xs font-semibold text-slate-500 mt-1">Perbarui rincian transaksi pencatatan jurnal keuangan.
-                </p>
             </div>
             <a href="{{ route(str_replace('_', '.', $transaction->type) . '.index') }}"
                 class="px-4 py-2.5 bg-[#F2EFE9] hover:bg-[#E2DDD5] text-slate-800 border border-[#D5CFC4] text-xs font-semibold rounded-xl transition shadow-sm">
@@ -78,7 +76,7 @@
                             @foreach ($cashBankCoas as $coa)
                                 <option value="{{ $coa->id }}"
                                     {{ old('cash_bank_id', $cashBankCoaId) == $coa->id ? 'selected' : '' }}>
-                                    [{{ $coa->code }}] {{ $coa->name }}
+                                    {{ $coa->name }}
                                 </option>
                             @endforeach
                         </select>
@@ -98,7 +96,7 @@
                             @foreach ($opponentCoas as $coa)
                                 <option value="{{ $coa->id }}"
                                     {{ old('opponent_id', $opponentCoaId) == $coa->id ? 'selected' : '' }}>
-                                    [{{ $coa->code }}] {{ $coa->name }}
+                                    {{ $coa->name }}
                                     ({{ ucfirst($coa->category_type ?? ($coa->type ?? 'Lawan')) }})
                                 </option>
                             @endforeach
@@ -125,11 +123,11 @@
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#E2DDD5]">
                 <a href="{{ route(str_replace('_', '.', $transaction->type) . '.index') }}"
                     class="px-5 py-2.5 border border-[#D5CFC4] bg-[#F2EFE9] hover:bg-[#E2DDD5] rounded-xl text-xs font-semibold text-slate-800 transition">
-                    Batal
+                    Cancel
                 </a>
                 <button type="submit"
                     class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/20 transition">
-                    Perbarui Transaksi
+                    Update
                 </button>
             </div>
         </form>
