@@ -101,7 +101,7 @@ class TransactionController extends Controller
 
     public function show(int $id): View
     {
-        $transactions = $this->transactionService->getTransactionsById($id);
+        $transactions = $this->transactionService->getTransactionById($id);
         
         $backRoute = route($this->resolveRedirectRoute($transaction->type));
 

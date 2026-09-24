@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class CoaService
 {
@@ -46,6 +47,8 @@ class CoaService
             'type' => $data['type'],
             'is_cash_bank' => filter_var($data['is_cash_bank'] ?? false, FILTER_VALIDATE_BOOLEAN),
         ]);
+
+        Cache::forget("balances_{$this->getTenantId()}");
     }
 
     public function updateCoa(int $id, array $data): Coa
@@ -54,6 +57,8 @@ class CoaService
         $data['is_cash_bank'] = filter_var($data['is_cash_bank'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $coa->update($data);
+
+        Cache::forget("balances_{$this->getTenantId()}");
         return $coa;
     }
 
@@ -73,6 +78,8 @@ class CoaService
             throw new \Exception('Cannot delete COA because it has sub-accounts.');
         }
     
+        Cache::forget("balances_{$this->getTenantId()}");
+
         return $coa->delete();
     }
 
@@ -114,27 +121,25 @@ class CoaService
             return 0.0;
         }
 
-        $query = DB::table('transaction_details')
+        return Cache::remember("coa_balance_{$this->getTenantId()}_{$period}", 300, function () use ($coaIds, $period) {
+            $query = DB::table('transaction_details')
             ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
             ->whereIn('transaction_details.coa_id', $coaIds)
             ->where('transactions.tenant_id', $this->getTenantId())
             ->whereNull('transactions.deleted_at')
             ->whereIn('transactions.status', ['posted', 'POSTED']);
 
-        if ($period === 'this_month') {
-            $query->whereMonth('transactions.date', now()->month)
-                  ->whereYear('transactions.date', now()->year);
-        } elseif ($period === 'this_year') {
-            $query->whereYear('transactions.date', now()->year);
-        }
+            if ($period === 'this_month') {
+                $query->whereBetween('transactions.date', [now()->startOfMonth(), now()->endOfMonth()]);
+            } elseif ($period === 'this_year') {
+                $query->whereBetween('transactions.date', [now()->startOfYear(),  now()->endOfYear()]);
+            }
 
-        $totals = $query->selectRaw('
-        SUM(transaction_details.debit) as total_debit,
-        SUM(transaction_details.credit) as total_credit')->first();
-        
-        $debit = $totals->total_debit ?? 0;
-        $credit = $totals->total_credit ?? 0;
+            $totals = $query->selectRaw('
+                COALESCE(SUM(transaction_details.debit),0) as total_debit,
+                COALESCE(SUM(transaction_details.credit),0 as total_credit')->first();
 
-        return (float) ($debit - $credit);
+            return (float) (($totals->total_debit ?? 0) - ($totals->total_credit ?? 0));
+        });  
     }
 }

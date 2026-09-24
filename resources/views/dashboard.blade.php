@@ -6,7 +6,6 @@
         <!-- Header Dashboard -->
         <div>
             <h1 class="text-2xl font-bold text-slate-800">Financial Dashboard</h1>
-            <p class="text-sm text-slate-500 mt-0.5">Real-time overview of cash, bank balances, and daily transaction trends
             </p>
         </div>
 
