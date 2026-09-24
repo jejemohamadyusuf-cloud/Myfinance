@@ -28,31 +28,33 @@ class UpdateTransactionRequest extends FormRequest
         $this->merge([
             'cash_bank_id' => $cashBankId,
             'cash_bank_coa_id' => $cashBankId,
-            'opponent_id' => $cashBankId,
-            'opponent_coa_id' => $cashBankId,
+            'opponent_id' => $opponentId,
+            'opponent_coa_id' => $opponentId,
         ]);
     }
 
     public function rules(): array
     {
         return [
-            'type' => ['required'],
-            'date' => ['required', 'date'],
+            'type'             => ['required', 'string'],
+            'date'             => ['required', 'date'],
+            'cash_bank_id'     => ['required', 'exists:coas,id'],
             'cash_bank_coa_id' => ['required', 'exists:coas,id'],
-            'opponent_coa_id' => ['required', 'exists:coas,id', 'different:cash_bank_id'],
-            'total_amount' => ['required', 'numeric', 'gt:0'],
-            'description' => ['nullable', 'string', 'max:255'],
+            'opponent_id'      => ['required', 'exists:coas,id', 'different:cash_bank_id'],
+            'opponent_coa_id'  => ['required', 'exists:coas,id', 'different:cash_bank_coa_id'],
+            'total_amount'     => ['required', 'numeric', 'gt:0'],
+            'description'      => ['nullable', 'string', 'max:255'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'cash_bank_coa_id.required' => 'Akun Kas / Bank wajib dipilih.',
-            'opponent_coa_id.required'  => 'Akun Lawan wajib dipilih.',
-            'opponent_coa_id.different' => 'Akun Lawan tidak boleh sama dengan Akun Kas/Bank.',
-            'total_amount.gt'          => 'Nominal transaksi harus lebih dari 0.',
-            'total_amount.required'    => 'Nominal transaksi harus diisi.',
+            'cash_bank_id.required' => 'Akun Kas / Bank wajib dipilih.',
+            'opponent_id.required'  => 'Akun Lawan wajib dipilih.',
+            'opponent_id.different' => 'Akun Lawan tidak boleh sama dengan Akun Kas/Bank.',
+            'total_amount.gt'       => 'Nominal transaksi harus lebih dari 0.',
+            'total_amount.required' => 'Nominal transaksi harus diisi.',
         ];
     }
 }

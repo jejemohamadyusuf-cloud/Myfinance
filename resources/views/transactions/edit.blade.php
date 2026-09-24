@@ -9,9 +9,20 @@
             </div>
             <a href="{{ route(str_replace('_', '.', $transaction->type) . '.index') }}"
                 class="px-4 py-2.5 bg-[#F2EFE9] hover:bg-[#E2DDD5] text-slate-800 border border-[#D5CFC4] text-xs font-semibold rounded-xl transition shadow-sm">
-                &larr; Kembali
+                &larr; Back
             </a>
         </div>
+
+        @if ($errors->any())
+            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold space-y-1 mb-6">
+                <p class="font-extrabold text-sm mb-1">Gagal Memperbarui Transaksi:</p>
+                <ul class="list-disc pl-5 space-y-0.5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <!-- Form Card Container -->
         <form method="POST" action="{{ route('transactions.update', $transaction->id) }}"
