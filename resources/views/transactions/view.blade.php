@@ -9,12 +9,12 @@
                 <p class="text-xs font-semibold text-slate-500 mt-1">Rincian jurnal pencatatan keuangan double-entry.</p>
             </div>
             <div class="flex items-center gap-2">
-                <a href="{{ $backRoute ?? route(str_replace('_', '.', $transaction->type) . '.index') }}"
+                <a href="{{ $backRoute ?? route(str_replace('_', '.', $transactions->type) . '.index') }}"
                     class="px-4 py-2.5 bg-[#F2EFE9] hover:bg-[#E2DDD5] text-slate-800 border border-[#D5CFC4] text-xs font-semibold rounded-xl transition shadow-sm">
                     &larr; Kembali
                 </a>
-                @if (strtolower($transaction->status) !== 'void')
-                    <a href="{{ route('transactions.edit', $transaction->id) }}"
+                @if (strtolower($transactions->status) !== 'void')
+                    <a href="{{ route('transactions.edit', $transactions->id) }}"
                         class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition">
                         Edit Transaksi
                     </a>
@@ -29,24 +29,24 @@
                 <div>
                     <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">No. Voucher</span>
                     <span
-                        class="text-sm font-mono font-extrabold text-slate-900">{{ $transaction->transaction_number }}</span>
+                        class="text-sm font-mono font-extrabold text-slate-900">{{ $transactions->transaction_number }}</span>
                 </div>
                 <div>
                     <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tanggal</span>
                     <span
-                        class="text-sm font-bold text-slate-800">{{ \Carbon\Carbon::parse($transaction->date)->format('d/m/Y') }}</span>
+                        class="text-sm font-bold text-slate-800">{{ \Carbon\Carbon::parse($transactions->date)->format('d/m/Y') }}</span>
                 </div>
                 <div>
                     <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tipe Transaksi</span>
                     <span
-                        class="inline-block px-2 py-0.5 mt-0.5 rounded text-[10px] font-extrabold uppercase border {{ in_array(strtolower($transaction->type), ['cash_in', 'bank_in']) ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200' }}">
-                        {{ str_replace('_', ' ', $transaction->type) }}
+                        class="inline-block px-2 py-0.5 mt-0.5 rounded text-[10px] font-extrabold uppercase border {{ in_array(strtolower($transactions->type), ['cash_in', 'bank_in']) ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200' }}">
+                        {{ str_replace('_', ' ', $transactions->type) }}
                     </span>
                 </div>
                 <div>
                     <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Nominal</span>
                     <span class="text-sm font-mono font-extrabold text-indigo-700">Rp
-                        {{ number_format($transaction->total_amount, 2, ',', '.') }}</span>
+                        {{ number_format($transactions->total_amount, 2, ',', '.') }}</span>
                 </div>
             </div>
 
@@ -64,7 +64,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#E2DDD5] font-medium text-slate-800">
-                            @foreach ($transaction->details as $detail)
+                            @foreach ($transactions->details as $detail)
                                 <tr>
                                     <td class="py-2.5 px-4">
                                         <span
@@ -89,7 +89,7 @@
                 <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Keterangan /
                     Memori</span>
                 <p class="text-xs font-medium text-slate-700">
-                    {{ $transaction->description ?: 'Tidak ada keterangan tambahan.' }}</p>
+                    {{ $transactions->description ?: 'Tidak ada keterangan tambahan.' }}</p>
             </div>
         </div>
     </div>
