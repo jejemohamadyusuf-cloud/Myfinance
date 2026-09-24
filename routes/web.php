@@ -17,9 +17,21 @@ Route::get('/logout', function () {
     return Auth::check() ? redirect()->route('dashboard') : redirect()->route('login');
 });
 
-#dashboard
 Route::middleware(['auth'])->group(function () {
+#dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+#cash-in
+    Route::get('/cash-in', [TransactionController::class, 'cashInIndex'])->name('cash.in.index');
+    Route::get('/cash-in/create', [TransactionController::class, 'cashInCreate'])->name('cash.in.create');
+#bank-in
+    Route::get('/bank-in', [TransactionController::class, 'bankInIndex'])->name('bank.in.index');
+    Route::get('/bank-in/create', [TransactionController::class, 'bankInCreate'])->name('bank.in.create');
+#cash-out
+    Route::get('/cash-out', [TransactionController::class, 'cashOutIndex'])->name('cash.out.index');
+    Route::get('/cash-out/create', [TransactionController::class, 'cashOutCreate'])->name('cash.out.create');
+#bank-out
+    Route::get('/bank-out', [TransactionController::class, 'bankOutIndex'])->name('bank.out.index');
+    Route::get('/bank-out/create', [TransactionController::class, 'bankOutCreate'])->name('bank.out.create');
 
 #transactions
     Route::prefix('transactions')->name('transactions.')->group(function () {
@@ -47,30 +59,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [CoaController::class, 'edit'])->name('edit');
         Route::put('/{id}', [CoaController::class, 'update'])->name('update');
         Route::delete('/{id}', [CoaController::class, 'destroy'])->name('destroy');
-    });
-
-#cash transactions
-    Route::prefix('cash')->name('cash.')->group(function () {
-        Route::prefix('in')->name('in.')->group(function () {
-            Route::get('/', [TransactionController::class, 'cashInIndex'])->name('index');
-            Route::get('/create', [TransactionController::class, 'cashInCreate'])->name('create');
-        });
-        Route::prefix('out')->name('out.')->group(function () {
-            Route::get('/', [TransactionController::class, 'cashOutIndex'])->name('index');
-            Route::get('/create', [TransactionController::class, 'cashOutCreate'])->name('create');
-        });
-    });
-
-#bank transactions
-    Route::prefix('bank')->name('bank.')->group(function () {
-        Route::prefix('in')->name('in.')->group(function () {
-            Route::get('/', [TransactionController::class, 'bankInIndex'])->name('index');
-            Route::get('/create', [TransactionController::class, 'bankInCreate'])->name('create');
-        });
-        Route::prefix('out')->name('out.')->group(function () {
-            Route::get('/', [TransactionController::class, 'bankOutIndex'])->name('index');
-            Route::get('/create', [TransactionController::class, 'bankOutCreate'])->name('create');
-        });       
     });
 
 #profiles
