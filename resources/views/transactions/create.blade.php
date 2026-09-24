@@ -18,6 +18,17 @@
             </a>
         </div>
 
+        @if ($errors->any())
+            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold space-y-1 mb-6">
+                <p class="font-extrabold text-sm mb-1">Gagal Menyimpan Transaksi:</p>
+                <ul class="list-disc pl-5 space-y-0.5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <!-- Form Container -->
         <form method="POST" action="{{ route('transactions.store') }}" onsubmit="disableTransactionSubmitButton(this)"
             class="bg-white p-6 sm:p-8 rounded-2xl border border-[#E2DDD5] shadow-sm space-y-6">
