@@ -92,17 +92,21 @@ class CoaService
                 ->orWhereNull('sub_category');
             })->pluck('id');
     
-        return $this->getCalculateBalanceByCoaIds($cashCoaIds);
+        return $this->getCalculateBalanceByCoaIds($cashCoaIds, 'all_time');
     }
 
     public function getBankBalance(): float
     {
         $bankCoaIds = Coa::where('tenant_id', $this->getTenantId())
             ->where('is_cash_bank', 1)
-            ->whereRaw("LOWER(sub_category) = 'bank'")
-            ->pluck('id');
+            ->where(function ($q) {
+                $q->whereRaw("LOWER(sub_category) = 'bank'")
+                ->orWhereRaw("LOWER(type) = 'bank'");
+        })->pluck('id');
         
-        return $this->getCalculateBalanceByCoaIds($bankCoaIds);
+            
+        
+        return $this->getCalculateBalanceByCoaIds($bankCoaIds, 'all_time');
     }
 
     public function getExpenseBalance(string $period = 'this_month'): float
@@ -123,7 +127,9 @@ class CoaService
             return 0.0;
         }
 
-        return Cache::remember("coa_balance_{$this->getTenantId()}_{$period}", 300, function () use ($coaIds, $period) {
+        $cacheKey = "coa_balance_{$this->getTenantId()}_{$period}_" .md5(json_encode($coaIds));
+
+        return Cache::remember($cacheKey, 300, function () use ($coaIds, $period) {
             $query = DB::table('transaction_details')
             ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
             ->whereIn('transaction_details.coa_id', $coaIds)
@@ -143,5 +149,10 @@ class CoaService
 
             return (float) (($totals->total_debit ?? 0) - ($totals->total_credit ?? 0));
         });  
+    }
+
+    public function clearBalanceCache(): void
+    {
+        Cache::forget("balance_{$this->getTenantId()}");
     }
 }
