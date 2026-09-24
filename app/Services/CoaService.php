@@ -46,6 +46,7 @@ class CoaService
             'name' => $data['name'],
             'type' => $data['type'],
             'is_cash_bank' => filter_var($data['is_cash_bank'] ?? false, FILTER_VALIDATE_BOOLEAN),
+            'sub_category' => $data['sub_category'],
         ]);
 
         Cache::forget("balances_{$this->getTenantId()}");
