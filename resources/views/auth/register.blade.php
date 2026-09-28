@@ -1,84 +1,103 @@
-<x-guest-layout>
-    <!-- Header Section -->
-    <div class="mb-8">
-        <div class="flex lg:hidden items-center gap-3 mb-6">
-            <div
-                class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-white text-sm shadow-md">
-                MF
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Daftar - MyFinance</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#C5D3F8] text-slate-800 antialiased min-h-screen flex items-center justify-center p-4 relative overflow-x-hidden">
+
+    <div
+        class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden relative z-10 border border-white/60 my-6">
+
+        <!-- TOP PANEL -->
+        <div class="bg-[#EBF1FF] p-6 text-center border-b border-blue-100/60">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-[#2D3B6B] flex items-center justify-center font-extrabold text-white text-xs shadow-sm">
+                        MF
+                    </div>
+                    <span class="text-base font-extrabold tracking-wider text-[#2D3B6B]">MYFINANCE</span>
+                </div>
+
+                <a href="{{ route('login') }}"
+                    class="px-3.5 py-1.5 bg-[#B092EE] hover:bg-[#9B77EA] text-white text-xs font-bold rounded-lg transition shadow-sm">
+                    Sudah Ada Akun
+                </a>
             </div>
-            <span class="text-xl font-extrabold text-slate-900 tracking-tight">MyFinance</span>
         </div>
 
-        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Daftar Akun Baru</h2>
-        <p class="text-xs font-semibold text-slate-600 mt-2">Buat akun untuk mulai mengelola keuangan bisnis Anda</p>
+        <!-- FORM PANEL -->
+        <div class="p-6 sm:p-8">
+            <div class="text-center mb-6">
+                <h2 class="text-xl font-extrabold text-[#2D3B6B] uppercase tracking-wider">BUAT AKUN BARU</h2>
+                <p class="text-xs font-semibold text-slate-400 mt-1">Daftarkan bisnis Anda di MyFinance</p>
+            </div>
+
+            <form method="POST" action="{{ route('register') }}" class="space-y-4">
+                @csrf
+
+                <!-- Name Input -->
+                <div>
+                    <input type="text" name="name" value="{{ old('name') }}" required autofocus
+                        placeholder="Nama Lengkap"
+                        class="w-full px-4 py-2.5 bg-[#E8EEFF] border border-transparent focus:border-[#B092EE] rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none transition shadow-inner">
+                    @error('name')
+                        <p class="mt-1 text-[11px] text-rose-600 font-semibold">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Email Input -->
+                <div>
+                    <input type="email" name="email" value="{{ old('email') }}" required placeholder="Alamat Email"
+                        class="w-full px-4 py-2.5 bg-[#E8EEFF] border border-transparent focus:border-[#B092EE] rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none transition shadow-inner">
+                    @error('email')
+                        <p class="mt-1 text-[11px] text-rose-600 font-semibold">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Password Input -->
+                <div>
+                    <input type="password" name="password" required placeholder="Kata Sandi"
+                        class="w-full px-4 py-2.5 bg-[#E8EEFF] border border-transparent focus:border-[#B092EE] rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none transition shadow-inner">
+                    @error('password')
+                        <p class="mt-1 text-[11px] text-rose-600 font-semibold">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Confirm Password Input -->
+                <div>
+                    <input type="password" name="password_confirmation" required placeholder="Konfirmasi Kata Sandi"
+                        class="w-full px-4 py-2.5 bg-[#E8EEFF] border border-transparent focus:border-[#B092EE] rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none transition shadow-inner">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-2">
+                    <button type="submit"
+                        class="w-full py-2.5 px-4 bg-[#B092EE] hover:bg-[#9B77EA] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md transition duration-200">
+                        DAFTAR SEKARANG
+                    </button>
+                </div>
+            </form>
+        </div>
+
     </div>
+</body>
 
-    <form method="POST" action="{{ route('register') }}" autocomplete="off" class="space-y-5">
-        @csrf
-
-        <!-- Name Field -->
-        <div>
-            <label for="name" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-                Nama Lengkap <span class="text-rose-500">*</span>
-            </label>
-            <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus
-                placeholder="John Doe" autocomplete="name"
-                class="w-full px-4 py-3 bg-[#FBF9F5] border @error('name') border-rose-500 @else border-slate-300 @enderror rounded-xl text-sm text-slate-900 font-semibold placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition shadow-sm">
-            @error('name')
-                <p class="mt-1.5 text-xs text-rose-600 font-semibold">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <!-- Email Address -->
-        <div>
-            <label for="email" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-                Alamat Email <span class="text-rose-500">*</span>
-            </label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}" required
-                placeholder="nama@perusahaan.com" autocomplete="username"
-                class="w-full px-4 py-3 bg-[#FBF9F5] border @error('email') border-rose-500 @else border-slate-300 @enderror rounded-xl text-sm text-slate-900 font-semibold placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition shadow-sm">
-            @error('email')
-                <p class="mt-1.5 text-xs text-rose-600 font-semibold">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <!-- Password -->
-        <div>
-            <label for="password" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-                Kata Sandi <span class="text-rose-500">*</span>
-            </label>
-            <input type="password" id="password" name="password" required placeholder="••••••••"
-                autocomplete="new-password"
-                class="w-full px-4 py-3 bg-[#FBF9F5] border @error('password') border-rose-500 @else border-slate-300 @enderror rounded-xl text-sm text-slate-900 font-semibold placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition shadow-sm">
-            @error('password')
-                <p class="mt-1.5 text-xs text-rose-600 font-semibold">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <!-- Confirm Password -->
-        <div>
-            <label for="password_confirmation"
-                class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-                Konfirmasi Kata Sandi <span class="text-rose-500">*</span>
-            </label>
-            <input type="password" id="password_confirmation" name="password_confirmation" required
-                placeholder="••••••••" autocomplete="new-password"
-                class="w-full px-4 py-3 bg-[#FBF9F5] border @error('password_confirmation') border-rose-500 @else border-slate-300 @enderror rounded-xl text-sm text-slate-900 font-semibold placeholder-slate-400 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition shadow-sm">
-            @error('password_confirmation')
-                <p class="mt-1.5 text-xs text-rose-600 font-semibold">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <!-- Register & Login Redirect -->
-        <div class="flex items-center justify-between pt-2">
-            <a class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition" href="{{ route('login') }}">
-                Sudah punya akun? <span class="text-indigo-600 font-bold hover:underline">Masuk</span>
-            </a>
-
-            <button type="submit"
-                class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md shadow-indigo-600/20 transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                Daftar Sekarang
-            </button>
-        </div>
-    </form>
-</x-guest-layout>
+</html>

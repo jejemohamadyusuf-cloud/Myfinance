@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Coa;
-use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;

@@ -22,177 +22,116 @@
     </style>
 </head>
 
-<body class="bg-[#F8F6F0] text-slate-900 antialiased min-h-screen">
+<body
+    class="bg-[#C5D3F8] text-slate-800 antialiased min-h-screen flex items-center justify-center p-4 relative overflow-x-hidden">
 
-    <div class="min-h-screen grid grid-cols-1 lg:grid-cols-12">
+    <!-- Background Wave Accent -->
+    <div class="fixed -top-24 -left-24 w-96 h-96 bg-blue-300/40 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="fixed -bottom-24 -right-24 w-96 h-96 bg-purple-300/40 rounded-full blur-3xl pointer-events-none"></div>
 
-        <!-- PANEL KIRI: Warm Beige Section (#F2EFE9) -->
-        <div
-            class="hidden lg:flex lg:col-span-6 xl:col-span-7 bg-[#F2EFE9] border-r border-[#E2DDD5] p-12 flex-col justify-between relative overflow-hidden">
+    <!-- Main Card Container -->
+    <div
+        class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden relative z-10 border border-white/60 my-6">
 
-            <div
-                class="absolute inset-0 bg-[radial-gradient(#D5CFC4_1px,transparent_1px)] [background-size:24px_24px] opacity-40">
-            </div>
-
-            <!-- Brand Header -->
-            <div class="relative z-10 flex items-center gap-3">
-                <div
-                    class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-white text-base shadow-md shadow-indigo-600/20">
-                    MF
-                </div>
-                <!-- 🟢 [COLOR FIX]: Hitam Pekat Slate-900 -->
-                <span class="text-2xl font-extrabold tracking-tight text-slate-900">MyFinance</span>
-            </div>
-
-            <!-- Hero Feature -->
-            <div class="relative z-10 max-w-xl my-auto py-12">
-                <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold mb-6">
-                    <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
-                    Financial Operations & Accounting System
+        <!-- TOP PANEL: Custom Vector Illustration & Branding -->
+        <div class="bg-[#EBF1FF] p-6 text-center relative border-b border-blue-100/60">
+            <!-- Header Bar (Logo & Register Button) -->
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-[#2D3B6B] flex items-center justify-center font-extrabold text-white text-xs shadow-sm">
+                        MF
+                    </div>
+                    <span class="text-base font-extrabold tracking-wider text-[#2D3B6B]">MYFINANCE</span>
                 </div>
 
-                <!-- 🟢 [COLOR FIX]: Judul Teks Slate-900 & Highlight Indigo-600 -->
-                <h2 class="text-4xl xl:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
-                    Kelola Keuangan Bisnis <br>
-                    <span class="text-indigo-600">Presisi, Aman & Terstruktur.</span>
-                </h2>
-
-                <!-- 🟢 [COLOR FIX]: Deskripsi Slate-600 (Kontras Pas di Atas Beige) -->
-                <p class="text-slate-600 text-sm leading-relaxed mb-8 font-medium">
-                    Sistem pencatatan double-entry otomatis, pengelolaan Kas & Bank terpisah, serta laporan jurnal
-                    realtime yang dirancang profesional.
-                </p>
-
-                <!-- Mini Stat Badges -->
-                <div class="grid grid-cols-3 gap-4 border-t border-[#E2DDD5] pt-6">
-                    <div>
-                        <!-- 🟢 [COLOR FIX]: Angka Hitam Tegas Slate-900 -->
-                        <div class="text-xl font-bold text-slate-900 font-mono">100%</div>
-                        <div class="text-[11px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Double-Entry
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-xl font-bold text-slate-900 font-mono">Realtime</div>
-                        <div class="text-[11px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Ledger Report
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-xl font-bold text-emerald-600 font-mono">Secure</div>
-                        <div class="text-[11px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Multi Tenant
-                        </div>
-                    </div>
-                </div>
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}"
+                        class="px-3.5 py-1.5 bg-[#B092EE] hover:bg-[#9B77EA] text-white text-xs font-bold rounded-lg transition shadow-sm">
+                        Buat Akun
+                    </a>
+                @endif
             </div>
 
-            <!-- Footer -->
-            <div
-                class="relative z-10 text-xs text-slate-600 font-semibold flex items-center justify-between border-t border-[#E2DDD5] pt-4">
-                <span>&copy; {{ date('Y') }} MyFinance System.</span>
-                <span>Enterprise Edition v2.0</span>
-            </div>
+            <!-- 🟢 Pemanggilan Component Blade Laptop Animasi 🟢 -->
+            <x-animated-laptop />
+
+            <p class="text-[11px] text-slate-500 font-medium max-w-xs mx-auto">
+                Sistem Pengelolaan Keuangan Bisnis Presisi, Aman & Terstruktur.
+            </p>
         </div>
 
-        <!-- PANEL KANAN: Pure White Section (#FFFFFF) -->
-        <div class="lg:col-span-6 xl:col-span-5 flex items-center justify-center p-6 sm:p-12 bg-white relative">
-            <div class="w-full max-w-md">
+        <!-- BOTTOM PANEL: Form Section -->
+        <div class="p-6 sm:p-8">
+            <div class="text-center mb-6">
+                <h2 class="text-xl font-extrabold text-[#2D3B6B] uppercase tracking-wider">LOGIN PENGGUNA</h2>
+            </div>
 
-                <!-- Header Form -->
-                <div class="mb-8">
-                    <div class="flex lg:hidden items-center gap-3 mb-6">
-                        <div
-                            class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-white text-sm shadow-md">
-                            MF
-                        </div>
-                        <span class="text-xl font-extrabold text-slate-900 tracking-tight">MyFinance</span>
+            @if (session('status'))
+                <div
+                    class="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl font-semibold text-center">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}" autocomplete="off"
+                onsubmit="disableLoginSubmitButton(this)" class="space-y-4">
+                @csrf
+
+                <!-- Email Input -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
                     </div>
-
-                    <!-- 🟢 [COLOR FIX]: Judul Teks Hitam Slate-900 -->
-                    <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Selamat Datang</h2>
-                    <!-- 🟢 [COLOR FIX]: Sub-Teks Slate-600 -->
-                    <p class="text-xs font-semibold text-slate-600 mt-2">Silakan masuk ke akun Anda untuk melanjutkan
-                    </p>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
+                        placeholder="Email atau Username"
+                        class="w-full pl-10 pr-4 py-2.5 bg-[#E8EEFF] border border-transparent focus:border-[#B092EE] rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none transition shadow-inner">
+                    @error('email')
+                        <p class="mt-1 text-[11px] text-rose-600 font-semibold">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <!-- Alert Status Session -->
-                @if (session('status'))
-                    <div
-                        class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl font-semibold">
-                        {{ session('status') }}
+                <!-- Password Input -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
                     </div>
-                @endif
+                    <input type="password" id="password" name="password" required placeholder="Kata Sandi"
+                        class="w-full pl-10 pr-4 py-2.5 bg-[#E8EEFF] border border-transparent focus:border-[#B092EE] rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none transition shadow-inner">
+                    @error('password')
+                        <p class="mt-1 text-[11px] text-rose-600 font-semibold">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                <form method="POST" action="{{ route('login') }}" autocomplete="off"
-                    onsubmit="disableLoginSubmitButton(this)" class="space-y-5">
-                    @csrf
+                <!-- Options -->
+                <div class="flex items-center justify-between text-[11px] font-semibold pt-1">
+                    <label for="remember_me" class="inline-flex items-center cursor-pointer">
+                        <input id="remember_me" type="checkbox" name="remember"
+                            class="rounded border-slate-300 text-[#B092EE] focus:ring-[#B092EE] w-3.5 h-3.5">
+                        <span class="ms-1.5 text-slate-600">Ingat Saya</span>
+                    </label>
 
-                    <!-- Email Field -->
-                    <div>
-                        <!-- 🟢 [COLOR FIX]: Label Teks Slate-800 Bold -->
-                        <label for="email"
-                            class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-                            Alamat Email <span class="text-rose-500">*</span>
-                        </label>
-                        <!-- 🟢 [COLOR FIX]: Teks Input Slate-900 & Placeholder Slate-500 -->
-                        <input type="email" id="email" name="email" value="{{ old('email') }}" required
-                            autofocus placeholder="nama@perusahaan.com" autocomplete="username"
-                            class="w-full px-4 py-3 bg-[#FBF9F5] border @error('email') border-rose-500 @else border-slate-300 @enderror rounded-xl text-sm text-slate-900 font-semibold placeholder-slate-500 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition shadow-sm">
-                        @error('email')
-                            <p class="mt-1.5 text-xs text-rose-600 font-semibold">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" class="text-[#2D3B6B] hover:underline font-bold">
+                            Lupa kata sandi?
+                        </a>
+                    @endif
+                </div>
 
-                    <!-- Password Field -->
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <label for="password"
-                                class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                Kata Sandi <span class="text-rose-500">*</span>
-                            </label>
-                            @if (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}"
-                                    class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition">
-                                    Lupa sandi?
-                                </a>
-                            @endif
-                        </div>
-
-                        <input type="password" id="password" name="password" required placeholder="••••••••"
-                            autocomplete="current-password"
-                            class="w-full px-4 py-3 bg-[#FBF9F5] border @error('password') border-rose-500 @else border-slate-300 @enderror rounded-xl text-sm text-slate-900 font-semibold placeholder-slate-500 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition shadow-sm">
-                        @error('password')
-                            <p class="mt-1.5 text-xs text-rose-600 font-semibold">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Remember Me & Register Redirect -->
-                    <div class="flex items-center justify-between pt-1">
-                        <label for="remember_me" class="inline-flex items-center cursor-pointer group">
-                            <input id="remember_me" type="checkbox" name="remember"
-                                class="rounded border-slate-300 bg-slate-50 text-indigo-600 focus:ring-indigo-500/30 w-4 h-4">
-                            <span
-                                class="ms-2 text-xs text-slate-700 group-hover:text-slate-900 font-semibold transition">Ingat
-                                perangkat ini</span>
-                        </label>
-
-                        @if (Route::has('register'))
-                            <a class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition"
-                                href="{{ route('register') }}">
-                                Belum punya akun? <span class="text-indigo-600 font-bold hover:underline">Daftar</span>
-                            </a>
-                        @endif
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div class="pt-3">
-                        <button type="submit" id="loginBtn"
-                            class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md shadow-indigo-600/20 transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            Masuk ke Aplikasi
-                        </button>
-                    </div>
-                </form>
-
-            </div>
+                <!-- Submit Button -->
+                <div class="pt-2">
+                    <button type="submit" id="loginBtn"
+                        class="w-full py-2.5 px-4 bg-[#B092EE] hover:bg-[#9B77EA] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md transition duration-200">
+                        LOGIN
+                    </button>
+                </div>
+            </form>
         </div>
 
     </div>
@@ -200,15 +139,11 @@
     <script>
         function disableLoginSubmitButton(form) {
             const btn = form.querySelector('#loginBtn');
-            if (btn.dataset.submitted === "true") {
-                event.preventDefault();
-                return false;
-            }
-
+            if (btn.dataset.submitted === "true") return false;
             btn.dataset.submitted = "true";
             btn.disabled = true;
             btn.classList.add('opacity-60', 'cursor-not-allowed');
-            btn.innerText = 'Memproses Masuk...';
+            btn.innerText = 'MEMPROSES...';
         }
     </script>
 </body>
