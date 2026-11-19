@@ -17,16 +17,16 @@ foreach ($tmpDirs as $dir) {
     }
 }
 
-// [KOREKSI MULAI]: Kunci SEMUA driver inti agar kebal dari variabel kosong di Vercel
+// 2. Kunci SEMUA driver inti & matikan APP_DEBUG secara mutlak
 $secureEnvs = [
+    'APP_ENV'                => 'production',
+    'APP_DEBUG'              => 'false',
     'APP_SERVICES_CACHE'     => "$tmpStorage/bootstrap/cache/services.php",
     'APP_PACKAGES_CACHE'     => "$tmpStorage/bootstrap/cache/packages.php",
     'APP_CONFIG_CACHE'       => "$tmpStorage/bootstrap/cache/config.php",
     'APP_ROUTES_CACHE'       => "$tmpStorage/bootstrap/cache/routes.php",
     'APP_EVENTS_CACHE'       => "$tmpStorage/bootstrap/cache/events.php",
-    
-    // Fix mutlak untuk error Maintenance Mode (ArgumentCountError)
-    'APP_MAINTENANCE_DRIVER' => 'file', 
+    'APP_MAINTENANCE_DRIVER' => 'file',
     'CACHE_STORE'            => 'array',
     'CACHE_DRIVER'           => 'array',
     'SESSION_DRIVER'         => 'cookie',
@@ -40,7 +40,6 @@ foreach ($secureEnvs as $key => $value) {
     $_ENV[$key] = $value;
     $_SERVER[$key] = $value;
 }
-// [KOREKSI SELESAI]
 
 // 3. Load aplikasi Laravel
 require __DIR__ . '/../vendor/autoload.php';
@@ -49,22 +48,18 @@ $app = require_once __DIR__ . '/../bootstrap/app.php';
 // 4. Kunci storage ke /tmp
 $app->useStoragePath($tmpStorage);
 
-// 5. Jalankan Request
+// 5. Jalankan Request dengan penanganan error aman
 try {
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-    
     $request = Illuminate\Http\Request::capture();
-    
-    // Hapus sementara header Accept JSON jika ingin melihat tampilan web asli
-    // $request->headers->set('Accept', 'application/json'); 
-    
     $response = $kernel->handle($request);
     $response->send();
-    
     $kernel->terminate($request, $response);
 } catch (\Throwable $e) {
-    echo "<h1>CRITICAL ERROR</h1>";
-    echo "<p><b>Message:</b> " . htmlspecialchars($e->getMessage()) . "</p>";
-    echo "<p><b>File:</b> " . $e->getFile() . " (Line " . $e->getLine() . ")</p>";
-    echo "<pre style='background:#f3f4f6; padding:10px;'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+    // Catat detail error secara diam-diam ke Log Vercel (hanya admin yang bisa lihat)
+    error_log($e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+
+    // Tampilkan halaman aman tanpa membocorkan data sensitif ke pengunjung
+    http_response_code(500);
+    echo "<h1>500 | Terjadi Kesalahan Server</h1><p>Silakan coba beberapa saat lagi.</p>";
 }
