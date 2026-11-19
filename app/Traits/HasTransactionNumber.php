@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Traits;
+
+use App\Models\Journal;
 use App\Models\Transaction;
 use Carbon\Carbon;
 
@@ -13,6 +15,7 @@ trait HasTransactionNumber
             'cash_out' => 'KK0',
             'bank_in' => 'BM0',
             'bank_out' => 'BK0',
+            'general' => 'JU0'
         ];
 
         $prefix = $prefixes[$type] ?? 'TR0';

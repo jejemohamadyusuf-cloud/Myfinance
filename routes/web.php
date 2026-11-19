@@ -7,6 +7,8 @@ use App\Http\Controllers\Web\ReportController;
 use App\Http\Controllers\Web\CoaController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\ProfileController;
+use App\Http\Controllers\Web\JournalController;
+use App\Models\Journal;
 
 #home
 Route::get('/', function () {
@@ -43,6 +45,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [TransactionController::class, 'edit'])->name('edit');
         Route::put('/{id}', [TransactionController::class, 'update'])->name('update');
         Route::post('/{id}/void', [TransactionController::class, 'void'])->name('void');
+    });
+
+#journals
+    Route::prefix('journals')->name('journals.')->group(function () {
+        Route::get('/', [JournalController::class, 'index'])->name('index');
+        Route::get('/create', [JournalController::class, 'create'])->name('create');
+        Route::post('/', [JournalController::class, 'store'])->name('store');
+        
     });
 
 #reports

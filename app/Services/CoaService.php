@@ -104,15 +104,15 @@ class CoaService
                 ->orWhereRaw("LOWER(type) = 'bank'");
         })->pluck('id');
         
-            
-        
         return $this->getCalculateBalanceByCoaIds($bankCoaIds, 'all_time');
     }
 
-    public function getExpenseBalance(string $period = 'this_month'): float
+    public function getExpenseBalance(string $period = 'all_time'): float
     {
         $expenseCoaIds = Coa::where('tenant_id', $this->getTenantId())
-            ->whereIn('type', ['expense', 'liability'])->pluck('id');
+            ->where(function ($q) {
+                $q->where('is_cash_bank', 0)->orWhereNull('is_cash_bank');
+            })->pluck('id');
 
         if ($expenseCoaIds->isEmpty()) {
             return 0.0;
@@ -130,29 +130,52 @@ class CoaService
         $cacheKey = "coa_balance_{$this->getTenantId()}_{$period}_" .md5(json_encode($coaIds));
 
         return Cache::remember($cacheKey, 300, function () use ($coaIds, $period) {
-            $query = DB::table('transaction_details')
-            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
-            ->whereIn('transaction_details.coa_id', $coaIds)
-            ->where('transactions.tenant_id', $this->getTenantId())
-            ->whereNull('transactions.deleted_at')
-            ->whereIn('transactions.status', ['posted', 'POSTED']);
+            $queryTx = DB::table('transaction_details')
+                ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+                ->whereIn('transaction_details.coa_id', $coaIds)
+                ->where('transactions.tenant_id', $this->getTenantId())
+                ->whereNull('transactions.deleted_at')
+                ->whereIn('transactions.status', ['posted', 'POSTED']);
+
+            $queryJournal = DB::table('journal_details')
+                ->join('journals', 'journal_details.journal_id', '=', 'journals.id')
+                ->whereIn('journal_details.coa_id', $coaIds)
+                ->where('journals.user_id', $this->getTenantId());
 
             if ($period === 'this_month') {
-                $query->whereBetween('transactions.date', [now()->startOfMonth(), now()->endOfMonth()]);
+                $start = now()->startOfMonth()->toDateString();
+                $end = now()->endOfMonth()->toDateString();
+
+                $queryTx->whereBetween('transactions.date', [$start, $end]);
+                $queryJournal->whereBetween('journals.transaction_date', [$start, $end]);
             } elseif ($period === 'this_year') {
-                $query->whereBetween('transactions.date', [now()->startOfYear(),  now()->endOfYear()]);
+                $start = now()->startOfYear()->toDateString();
+                $end = now()->endOfYear()->toDateString();
+
+                $queryTx->whereBetween('transactions.date', [$start, $end]);
+                $queryJournal->whereBetween('journals.transaction_date', [$start, $end]);
             }
 
-            $totals = $query->selectRaw('
-                COALESCE(SUM(transaction_details.debit),0) as total_debit,
-                COALESCE(SUM(transaction_details.credit),0) as total_credit')->first();
+            $txDebit = (float)$queryTx->sum('transaction_details.debit');
+            $txCredit = (float)$queryTx->sum('transaction_details.credit');
 
-            return (float) (($totals->total_debit ?? 0) - ($totals->total_credit ?? 0));
+            $jDebit = (float)$queryJournal->sum('journal_details.debit');
+            $jCredit = (float)$queryJournal->sum('journal_details.credit');
+
+            $totalDebit = $txDebit + $jDebit;
+            $totalCredit = $txCredit + $jCredit;
+
+            $isCashOrBank = Coa::whereIn('id', $coaIds)->where('is_cash_bank', 1)->exists();
+
+            if ($isCashOrBank) {
+                return $totalDebit - $totalCredit;
+            }
+            return $totalDebit;
         });  
     }
 
     public function clearBalanceCache(): void
     {
-        Cache::forget("balance_{$this->getTenantId()}");
+        Cache::flush();
     }
 }
