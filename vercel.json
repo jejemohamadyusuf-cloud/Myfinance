@@ -30,6 +30,13 @@
     }
   ],
 
+  "crons": [
+    {
+      "path": "/cron/keep-alive",
+      "schedule": "0 0 * * *"
+    }
+  ],
+
   "env": {
     "APP_URL": "https://myfinance-alpha-nine.vercel.app",
     "ASSET_URL": "https://myfinance-alpha-nine.vercel.app",

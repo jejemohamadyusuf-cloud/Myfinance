@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Web\TransactionController;
 use App\Http\Controllers\Web\ReportController;
 use App\Http\Controllers\Web\CoaController;
@@ -17,6 +19,17 @@ Route::get('/', function () {
 
 Route::get('/logout', function () {
     return Auth::check() ? redirect()->route('dashboard') : redirect()->route('login');
+});
+
+Route::get('/cron/keep-alive', function (Request $request) {
+    $secret = (string) config('services.cron.secret');
+
+    abort_if($secret === '', 503, 'Cron secret is not configured.');
+    abort_unless(hash_equals($secret, (string) $request->bearerToken()), 401);
+
+    DB::select('SELECT 1');
+
+    return response()->json(['status' => 'ok']);
 });
 
 Route::middleware(['auth'])->group(function () {

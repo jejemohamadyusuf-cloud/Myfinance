@@ -57,3 +57,7 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Database Keep-Alive (Vercel)
+
+Vercel calls `/cron/keep-alive` once a day at 00:00 UTC. The endpoint runs a small database query and requires a `CRON_SECRET` environment variable. Set `CRON_SECRET` in the Vercel project settings for the Production environment; Vercel will send it as a bearer token for cron requests. Redeploy after adding the variable.
